@@ -1,8 +1,9 @@
-"""API에서 데이터를 받아 JSON 파일에 누적하는 기본 크롤러."""
+"""API 크롤링 결과를 JSON에 누적하고 실행 로그를 남기는 크롤러."""
 
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +24,20 @@ def load_settings() -> dict[str, Any]:
     if not isinstance(settings, dict):
         raise ValueError("설정 파일은 JSON 객체여야 합니다.")
     return settings
+
+
+def configure_logging() -> None:
+    """콘솔과 logs/crawler.log에 실행 로그를 기록합니다."""
+    log_dir = BASE_DIR / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(message)s",
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler(log_dir / "crawler.log", encoding="utf-8"),
+        ],
+    )
 
 
 def load_state() -> dict[str, Any]:
@@ -98,7 +113,7 @@ def collect() -> None:
     cursor = state.get("cursor")
     api_key = client.fetch_api_key()
     meta = client.fetch_meta(api_key)
-    print(f"현재 공개 행 수: {meta.get('released_rows')}")
+    logging.info("현재 공개 행 수: %s", meta.get("released_rows"))
 
     while True:
         payload = client.fetch_records(api_key, cursor, limit)
@@ -114,11 +129,11 @@ def collect() -> None:
                 "next_refresh_at": meta.get("next_refresh_at"),
                 "last_success": True,
             })
-            print("새로운 데이터가 없어 수집을 종료합니다.")
+            logging.info("새로운 데이터가 없어 수집을 종료합니다.")
             return
 
         path = append_records(payload)
-        print(f"{len(items)}건 저장: {path}")
+        logging.info("%d건 저장: %s", len(items), path)
         cursor = next_cursor
         save_state({
             "cursor": cursor,
@@ -128,6 +143,16 @@ def collect() -> None:
         })
 
 
+def main() -> None:
+    """로깅을 설정하고 수집을 실행합니다."""
+    configure_logging()
+    try:
+        collect()
+    except Exception:
+        logging.exception("수집에 실패했습니다. 마지막 성공 cursor는 유지됩니다.")
+        raise
+
+
 if __name__ == "__main__":
-    collect()
+    main()
 

@@ -1,4 +1,4 @@
-"""공개 API 호출만 담당하는 기본 클라이언트."""
+"""공개 API 호출만 담당하는 클라이언트."""
 
 from __future__ import annotations
 
