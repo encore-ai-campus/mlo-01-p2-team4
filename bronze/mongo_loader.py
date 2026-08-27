@@ -1,4 +1,4 @@
-"""data/records.json의 신규 레코드를 MongoDB Atlas에 적재합니다."""
+"""data/records.json을 MongoDB Atlas에 증분 적재하는 모듈."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ STATE_PATH = BASE_DIR / "state" / "mongo_state.json"
 
 
 def load_dotenv(path: Path) -> None:
-    """간단한 KEY=VALUE 형식의 .env 파일을 읽습니다."""
+    """간단한 KEY=VALUE 형식의 .env 파일을 읽어 환경변수로 등록합니다."""
     if not path.exists():
         return
     for raw_line in path.read_text(encoding="utf-8").splitlines():
@@ -41,7 +41,7 @@ def load_config() -> tuple[str, str, str]:
 
 
 def load_records() -> list[dict[str, Any]]:
-    """records.json을 읽고 객체 배열인지 검증합니다."""
+    """records.json을 읽고 객체 배열인지 검증하여 반환합니다."""
     with DATA_PATH.open("r", encoding="utf-8-sig") as file:
         records = json.load(file)
     if not isinstance(records, list) or any(not isinstance(record, dict) for record in records):
@@ -50,7 +50,7 @@ def load_records() -> list[dict[str, Any]]:
 
 
 def load_state() -> int | None:
-    """마지막 성공 적재 record_id를 읽습니다."""
+    """마지막으로 MongoDB에 성공 적재한 record_id를 읽습니다."""
     if not STATE_PATH.exists():
         return None
     with STATE_PATH.open("r", encoding="utf-8") as file:
@@ -60,7 +60,7 @@ def load_state() -> int | None:
 
 
 def save_state(last_record_id: int) -> None:
-    """Atlas 적재 성공 후 상태를 안전하게 저장합니다."""
+    """성공한 마지막 record_id를 상태 파일에 안전하게 저장합니다."""
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = STATE_PATH.with_suffix(".tmp")
     with temporary_path.open("w", encoding="utf-8") as file:
@@ -72,7 +72,7 @@ def select_new_records(
     records: list[dict[str, Any]],
     last_record_id: int | None,
 ) -> list[dict[str, Any]]:
-    """마지막 적재 ID보다 큰 레코드만 선택합니다."""
+    """마지막 적재 ID보다 큰 record_id만 반환합니다."""
     return [
         record
         for record in records
@@ -87,7 +87,7 @@ def upsert_records(
     collection_name: str,
     records: list[dict[str, Any]],
 ) -> int:
-    """record_id를 기준으로 MongoDB Atlas에 upsert합니다."""
+    """record_id 기준으로 레코드를 MongoDB Atlas에 upsert합니다."""
     if not records:
         return 0
     client = MongoClient(uri, serverSelectionTimeoutMS=30000)
@@ -105,7 +105,7 @@ def upsert_records(
 
 
 def main() -> None:
-    """신규 레코드를 Atlas에 적재합니다."""
+    """신규 레코드를 MongoDB Atlas에 적재합니다."""
     uri, database, collection = load_config()
     records = load_records()
     new_records = select_new_records(records, load_state())
