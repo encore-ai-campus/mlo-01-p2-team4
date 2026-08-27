@@ -1,9 +1,11 @@
-"""API 크롤링 결과를 JSON에 누적하고 실행 로그를 남기는 크롤러."""
+"""API 크롤링, JSON 누적, 로그 기록과 MongoDB Atlas 적재를 수행합니다."""
 
 from __future__ import annotations
 
 import json
 import logging
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -98,8 +100,28 @@ def append_records(payload: dict[str, Any]) -> Path:
     return RECORDS_PATH
 
 
+def run_mongo_loader() -> None:
+    """JSON 저장 후 MongoDB Atlas 적재 모듈을 실행합니다."""
+    loader_path = BASE_DIR / "mongo_loader.py"
+    result = subprocess.run(
+        [sys.executable, str(loader_path)],
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="mbcs",
+        errors="replace",
+    )
+    stdout = result.stdout or ""
+    stderr = result.stderr or ""
+    if stdout.strip():
+        logging.info("MongoDB 적재 출력: %s", stdout.strip())
+    if result.returncode != 0:
+        error = stderr.strip() or stdout.strip() or "원인 메시지가 없습니다."
+        raise RuntimeError(f"MongoDB 적재 실패: {error}")
+
+
 def collect() -> None:
-    """현재 공개된 페이지를 모두 수집합니다."""
+    """현재 공개된 페이지를 수집하고 Atlas 적재 성공 후 cursor를 저장합니다."""
     settings = load_settings()
     base_url = settings.get("base_url")
     limit = settings.get("records_limit", 1000)
@@ -134,6 +156,7 @@ def collect() -> None:
 
         path = append_records(payload)
         logging.info("%d건 저장: %s", len(items), path)
+        run_mongo_loader()
         cursor = next_cursor
         save_state({
             "cursor": cursor,
