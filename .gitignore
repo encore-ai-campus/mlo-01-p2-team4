@@ -1,0 +1,43 @@
+# 운영체제에서 자동 생성되는 파일
+.DS_Store
+
+# Python 캐시 및 컴파일 결과
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 테스트·정적 분석·포매터 캐시
+.pytest_cache/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Python 가상환경 및 로컬 환경 변수
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# Jupyter 자동 생성 파일
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# IDE 및 편집기 개인 설정
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 패키징·빌드 결과
+build/
+dist/
+*.egg-info/
+
+# 로그
+*.log
