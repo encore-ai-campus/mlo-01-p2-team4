@@ -27,7 +27,7 @@ def load_dotenv(path: Path) -> None:
 
 
 def load_config() -> tuple[str, str, str]:
-    """Atlas 접속 설정을 읽습니다."""
+    """Atlas 접속 설정을 읽고 필수값을 검증합니다."""
     load_dotenv(BASE_DIR / ".env")
     values = (
         os.getenv("MONGODB_URI"),
@@ -44,7 +44,7 @@ def download_records(
     database_name: str,
     collection_name: str,
 ) -> list[dict[str, Any]]:
-    """Atlas 컬렉션에서 _id를 제외한 문서를 조회합니다."""
+    """Atlas 컬렉션의 문서를 조회하고 내부 _id는 제외합니다."""
     client = MongoClient(uri, serverSelectionTimeoutMS=30000)
     try:
         collection = client[database_name][collection_name]
@@ -54,7 +54,7 @@ def download_records(
 
 
 def save_records(records: list[dict[str, Any]]) -> None:
-    """조회 결과를 임시 파일을 거쳐 저장합니다."""
+    """조회한 레코드를 임시 파일을 거쳐 저장합니다."""
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = OUTPUT_PATH.with_suffix(".tmp")
     with temporary_path.open("w", encoding="utf-8") as file:
@@ -63,7 +63,7 @@ def save_records(records: list[dict[str, Any]]) -> None:
 
 
 def main() -> None:
-    """Atlas 데이터를 다운로드합니다."""
+    """Atlas 데이터를 조회하고 로컬 JSON 파일로 저장합니다."""
     uri, database, collection = load_config()
     records = download_records(uri, database, collection)
     save_records(records)
