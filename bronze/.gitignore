@@ -1,6 +1,7 @@
 __pycache__/
 .env
 data/records.json
+data/atlas_records.json
 state/*.json
 logs/
 
