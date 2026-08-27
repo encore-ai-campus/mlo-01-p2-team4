@@ -1,0 +1,141 @@
+version: 1
+status: active
+input_contract:
+  wrapper:
+    fields:
+      - field_name: record_id
+        data_type: integer
+        required: true
+      - field_name: payload
+        data_type: object
+        required: true
+      - field_name: release_slot
+        data_type: integer
+        required: true
+      - field_name: scheduled_release_at
+        data_type: datetime
+        required: true
+      - field_name: source_record_sha256
+        data_type: string
+        required: true
+      - field_name: source_row_no
+        data_type: integer
+        required: true
+  payload:
+    fields:
+      - field_name: area_no
+        data_type: string
+        required: true
+        nullable: false
+      - field_name: area_nm
+        data_type: string
+        required: true
+        nullable: false
+      - field_name: p_area_no
+        data_type: string
+        required: true
+        nullable: true
+      - field_name: p_area_nm
+        data_type: string
+        required: true
+        nullable: true
+      - field_name: top_area_no
+        data_type: string
+        required: true
+        nullable: false
+      - field_name: top_area_nm
+        data_type: string
+        required: true
+        nullable: false
+      - field_name: top_area_lvl
+        data_type: string
+        required: true
+        nullable: true
+      - field_name: mgr_no
+        data_type: string
+        required: true
+        nullable: false
+      - field_name: mgr_nm
+        data_type: string
+        required: true
+        nullable: true
+      - field_name: mgr_dept_nm
+        data_type: string
+        required: true
+        nullable: true
+      - field_name: mgr_pos_nm
+        data_type: string
+        required: true
+        nullable: true
+      - field_name: mgr_hire_dtm
+        data_type: datetime
+        required: true
+        nullable: true
+      - field_name: mgr_act_yn
+        data_type: string
+        required: true
+        nullable: true
+      - field_name: area_reg_dtm
+        data_type: datetime
+        required: true
+        nullable: true
+      - field_name: top_area_reg_dtm
+        data_type: datetime
+        required: true
+        nullable: true
+normalization:
+  null_policy: yaml_field_rules
+  trim_policy: boundary_whitespace_only
+  datetime:
+    supported_input_formats:
+      - "%Y-%m-%dT%H:%M:%S"
+      - "%Y-%m-%d %H:%M:%S"
+      - "%Y-%m-%d %H:%M:%S.%f"
+      - "%Y-%m-%dT%H:%M:%S%z"
+      - "%Y/%m/%d %H:%M:%S"
+      - "%Y.%m.%d %H:%M:%S"
+      - "%Y%m%d%H%M%S"
+    canonical_format: iso8601_seconds_offset
+    naive_timezone: "+09:00"
+validation:
+  reject_rules:
+    missing_required_key: REQUIRED_KEY_MISSING
+    wrong_type: TYPE_INVALID
+    null_or_empty: NULL_OR_EMPTY
+    duplicate_record_id: DUPLICATE_RECORD_ID
+    duplicate_source_row_no: DUPLICATE_SOURCE_ROW_NO
+    invalid_sha256: SHA256_INVALID
+    unsupported_datetime: DATETIME_INVALID
+output_contract:
+  flat_data:
+    columns:
+      - record_id
+      - source_row_no
+      - source_record_sha256
+      - release_slot
+      - scheduled_release_at
+      - area_no
+      - area_nm
+      - p_area_no
+      - p_area_nm
+      - top_area_no
+      - top_area_nm
+      - top_area_lvl
+      - mgr_no
+      - mgr_nm
+      - mgr_dept_nm
+      - mgr_pos_nm
+      - mgr_hire_dtm
+      - mgr_act_yn
+      - area_reg_dtm
+      - top_area_reg_dtm
+  reject_rows:
+    columns:
+      - record_id
+      - source_row_no
+      - source_record_sha256
+      - release_slot
+      - scheduled_release_at
+      - raw_json
+      - reason_code
+      - reason_detail

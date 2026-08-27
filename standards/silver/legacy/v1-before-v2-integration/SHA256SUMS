@@ -1,0 +1,8 @@
+a11f64a7d402beaf77e2964b5db27deaecef49383e82d9d3f765fcbb32c0c687  standards/silver/v1/catalogs/silver-model-columns.csv
+09e16581a7018757e7e8e8aa7b815adac8194571c28c2cb44b1ca748a6f52813  standards/silver/v1/examples/phase5-output.json
+d7990d576e34b672468e800a66d5acd85846fc755ab22fbfe584552e499fe8ec  standards/silver/v1/rules/modeling.yaml
+681cfee4f12490ae695eeb6278a10a7238cac7a1d45652da76ec68e67602f437  standards/silver/v1/schemas/phase5-output.schema.json
+a11f64a7d402beaf77e2964b5db27deaecef49383e82d9d3f765fcbb32c0c687  standards/silver/legacy/v1-before-v2-integration/catalogs/silver-model-columns.csv
+09e16581a7018757e7e8e8aa7b815adac8194571c28c2cb44b1ca748a6f52813  standards/silver/legacy/v1-before-v2-integration/examples/phase5-output.json
+d7990d576e34b672468e800a66d5acd85846fc755ab22fbfe584552e499fe8ec  standards/silver/legacy/v1-before-v2-integration/rules/modeling.yaml
+681cfee4f12490ae695eeb6278a10a7238cac7a1d45652da76ec68e67602f437  standards/silver/legacy/v1-before-v2-integration/schemas/phase5-output.schema.json

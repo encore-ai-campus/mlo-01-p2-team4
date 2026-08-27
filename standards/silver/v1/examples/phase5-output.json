@@ -1,0 +1,132 @@
+{
+  "context": {
+    "pipeline_run_id": "run-20260827-001",
+    "batch_id": "batch-0001",
+    "batch_sequence": 1,
+    "dataset_id": "legacy-hr",
+    "snapshot_id": "snapshot-20260827",
+    "contract_id": "phase4-standardized-record",
+    "contract_version": "1",
+    "ruleset_version": "1",
+    "cursor_in": null,
+    "cursor_out_candidate": "cursor-0002",
+    "requested_batch_size": 3,
+    "actual_input_count": 3
+  },
+  "employees": [
+    {
+      "data": {
+        "employee_id": "EMP000001",
+        "employee_name": "김은서",
+        "employee_department_name": "인사팀",
+        "employee_position_name": "팀장",
+        "employee_hire_datetime": "2020-01-02T09:00:00",
+        "employee_status_code": "ACTIVE"
+      },
+      "metadata": {
+        "model_key": "EMP000001",
+        "model_fingerprint": "368763739220640c91df3d22dd31c6ed742e4b40f1af5b825943a6b4730affd4",
+        "source_record_ids": [
+          101,
+          102
+        ]
+      }
+    }
+  ],
+  "areas": [
+    {
+      "data": {
+        "area_id": "BIZ_00001",
+        "area_name": "인사본부",
+        "parent_area_id": null,
+        "employee_id": "EMP000001",
+        "area_registration_date": "2024-01-01T00:00:00"
+      },
+      "metadata": {
+        "model_key": "BIZ_00001",
+        "model_fingerprint": "54bbb72e62a6d21ad827ff05f7405fb25f64c41413d9a26e7e6e81d7f1c71430",
+        "source_record_ids": [
+          101,
+          102
+        ]
+      }
+    }
+  ],
+  "parent_areas": [
+    {
+      "data": {
+        "top_area_id": "BIZ_00001",
+        "top_area_name": "인사본부",
+        "top_area_level_code": "1",
+        "top_area_registration_date": "2024-01-01T00:00:00"
+      },
+      "metadata": {
+        "model_key": "BIZ_00001",
+        "model_fingerprint": "d3a5bd0fcdf88b826cbf459b96ca5ea38a5c3913cc949ceb8846a50f66b87e32",
+        "source_record_ids": [
+          101,
+          102
+        ]
+      }
+    }
+  ],
+  "join_references": [
+    {
+      "data": {
+        "area_id": "BIZ_00001",
+        "parent_area_id": null,
+        "parent_area_name": null,
+        "employee_id": "EMP000001",
+        "employee_name": "김은서",
+        "employee_department_name": "인사팀",
+        "employee_position_name": "팀장",
+        "employee_hire_datetime": "2020-01-02T09:00:00",
+        "employee_status_code": "ACTIVE"
+      },
+      "metadata": {
+        "model_key": {
+          "area_id": "BIZ_00001",
+          "employee_id": "EMP000001"
+        },
+        "model_fingerprint": "dedfca39b34442428c7b7c755f7dcf6d6dda6cbb0cad45c3f0049abc355b22ea",
+        "source_record_ids": [
+          101,
+          102
+        ]
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "observed_lineage": {
+        "batch_record_index": 2,
+        "record_id": 103,
+        "source_row_no": 103,
+        "source_record_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "release_slot": 1,
+        "scheduled_release_at": "2026-08-27T09:00:00"
+      },
+      "raw_json": "{\"record_id\":103}",
+      "violations": [
+        {
+          "code": "REQUIRED_KEY_MISSING",
+          "rule_id": "phase4-required-business-field",
+          "field": "area_id",
+          "detail": "area_id is required"
+        }
+      ]
+    }
+  ],
+  "source_metrics": {
+    "input_count": 3,
+    "accepted_count": 2,
+    "rejected_count": 1,
+    "excluded_count": 0
+  },
+  "model_counts": {
+    "employee": 1,
+    "area": 1,
+    "parent_area": 1,
+    "join_reference": 1
+  }
+}
