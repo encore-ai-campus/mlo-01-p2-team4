@@ -92,10 +92,9 @@
 | 작업 항목 | 작업 내용 |
 |---|---|
 | `안길찬` |  |
-|  |  |
-|  |  |
+| BRONZE | Bronze 데이터 수집 ･ 적제 ･ Django Atlas 구현, Silver 데이터 다운로드 로직 구현 |
+| GOLD | Djnago 기능 구현 |
 | `김남동` |  |
-|  |  |
 |  |  |
 | `이형인` |  |
 |  |  |
@@ -118,7 +117,10 @@ Bronze–Silver–Gold 레이어의 엔터티, 키, 관계 및 무결성 규칙�
 - Bronze 원본 행 수 및 무결성 검증
 - Silver PK·FK·결측·도메인 및 격리 결과 확인
 - Gold 직원별 기준 연차일수 계산 결과 확인
-- 파이프라인 상태 및 기준 연차일수 조회 화면 시연
+- 파이프라인 상태 및 기준 복지연차 일괄 부여 서비스 화면 시연
+
+<img width="1889" height="912" alt="image" src="https://github.com/user-attachments/assets/7d36156b-9f78-41bf-b6a5-f4bdc790a252" />
+
 
 ## 10. 한 줄 회고
 
