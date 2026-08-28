@@ -108,7 +108,6 @@ API key 조회 → meta·cursor 확인 → 최초/증분 records 요청(≤1,000
 
 | Step | 실행할 일 | 산출물 | 수용 기준 |
 |---|---|---|---|
-| S1 | v1 계약·매핑·규칙·fixture·checksum을 lock하고 입력 context/snapshot을 검증 | Phase4Request | contract/dataset/snapshot 불일치는 batch 실패 |
 | S2 | wrapper·payload·raw JSON·observed lineage를 검증 | RejectedRecord | 구조 오류 행은 raw JSON·모든 위반 사유와 함께 Reject |
 | S3 | null, ID, 조직명, 상태, 수준, 일시, 계층 규칙을 표준화 | StandardizedBusinessRecord | `EMP######`, `BIZ_#####`, 승인 mapping 외 값의 임의 보정 0건 |
 | S4 | batch conflict, fingerprint, metrics, output schema를 검증 | Phase4Output | `input = accepted + rejected + excluded`, `excluded = 0`, 복원율·Reject 비율 KPI 통과 |
