@@ -109,10 +109,9 @@ API key 조회 → meta·cursor 확인 → 최초/증분 records 요청(≤1,000
 
 | Step | 실행할 일 | 산출물 | 수용 기준 |
 |---|---|---|---|
-| S1 | `standard-term.csv`와 v1 이름·코드 mapping을 로드·검증 | SilverRules | 필수 컬럼·허용값·mapping 오류는 실행 중단 |
-| S2 | wrapper·payload·raw JSON·source lineage를 검증 | `reject.csv` 후보 | 구조 오류 행은 raw JSON·모든 위반 사유와 함께 Reject |
-| S3 | null, ID, 조직명, 상태, 수준, 일시, 계층 규칙을 표준화 | StandardizedBusinessRecord | `EMP######`, `BIZ_#####`, 승인 mapping 외 값의 임의 보정 0건 |
-| S4 | 전체 표준값 중복을 2차 Reject로 분리하고 Flat pair를 게시 | `accept.csv`, `reject.csv` | `input = accepted + rejected + replayed`, source 중복 0건 |
+| S1 | wrapper·payload·raw JSON·observed lineage를 검증 | RejectedRecord | 구조 오류 행은 raw JSON·모든 위반 사유와 함께 Reject |
+| S2 | null, ID, 조직명, 상태, 수준, 일시, 계층 규칙을 표준화 | StandardizedBusinessRecord | `EMP######`, `BIZ_#####`, 승인 mapping 외 값의 임의 보정 0건 |
+| S3 | 전체 표준값 중복을 2차 Reject로 분리하고 Flat pair를 게시 | `accept.csv`, `reject.csv` | `input = accepted + rejected + replayed`, source 중복 0건 |
 
 표준 규칙 파일이나 기존 Flat CSV 계약이 손상된 경우 실행을 중단한다. 행 단위 표준화 오류와 전체 표준값 중복은 `reject.csv`에 기록하고, 모델 key 충돌은 다음 정규화 단계에서 처리한다.
 
@@ -120,10 +119,10 @@ API key 조회 → meta·cursor 확인 → 최초/증분 records 요청(≤1,000
 
 | Step | 실행할 일 | 산출물 | 수용 기준 |
 |---|---|---|---|
-| S5 | 게시된 누적 `accept.csv` 전체를 네 모델 후보로 투영 | 모델 후보 | Atlas 원본 재조회·재표준화 0건 |
-| S6 | 같은 key·같은 data는 병합하고, 같은 key·다른 data의 관련 source 전체를 정규화 Reject로 분리 | `normalization_reject.csv` | first/last wins 0건, Reject source의 네 모델 포함 0건 |
-| S7 | key uniqueness, 컬럼 순서, 모델 간 직원·영역 정합성을 검증 | 네 모델 snapshot | 일반 모델에 raw·lineage·source 컬럼 0개 |
-| S8 | empty bootstrap, conflict, publication failure, replay를 검증 | 인수 결과 | 동일 누적 Flat에서 byte-stable 결과, source accounting 일치 |
+| S4 | 게시된 누적 `accept.csv` 전체를 네 모델 후보로 투영 | 모델 후보 | Atlas 원본 재조회·재표준화 0건 |
+| S5 | 같은 key·같은 data는 병합하고, 같은 key·다른 data의 관련 source 전체를 정규화 Reject로 분리 | `normalization_reject.csv` | first/last wins 0건, Reject source의 네 모델 포함 0건 |
+| S6 | key uniqueness, 컬럼 순서, 모델 간 직원·영역 정합성을 검증 | 네 모델 snapshot | 일반 모델에 raw·lineage·source 컬럼 0개 |
+| S7 | empty bootstrap, conflict, publication failure, replay를 검증 | 인수 결과 | 동일 누적 Flat에서 byte-stable 결과, source accounting 일치 |
 
 부분 증분 데이터에서 아직 들어오지 않은 `parent_area_id`와 `top_area_id` 참조는 건수만 보고하고 Reject 또는 실행 중단 사유로 사용하지 않는다.
 
