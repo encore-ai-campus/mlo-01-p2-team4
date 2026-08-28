@@ -1,0 +1,16 @@
+source_system,legacy_column,sample_value,legacy_description,issue
+legacy_hr,area_no,BIZ-31536,하위 조직 또는 영역을 식별하는 값,구분자·대소문자·공백 표현이 섞여 있어 원본과 표준 키를 분리해야 함
+legacy_hr,area_nm,전략플랫폼 49,하위 조직 또는 영역의 이름,일부 이름에 숫자 접미사가 있으나 업무 의미가 확인되지 않음
+legacy_hr,p_area_no,BIZ_00379,상위 조직을 식별하는 값,공백·하이픈·밑줄 표현이 혼재하고 관계 복원 여부가 미확정임
+legacy_hr,p_area_nm,인사,상위 조직의 이름,없음·하이픈·빈 값 토큰의 의미를 확인해야 함
+legacy_hr,top_area_no,BIZ_00379,최상위 조직을 식별하는 값,원본 ID인지 계산된 스냅샷인지 확인이 필요함
+legacy_hr,top_area_nm, 인사 ,최상위 조직의 이름,앞뒤 공백과 다른 ID 표현이 함께 관측됨
+legacy_hr,top_area_lvl,TOP_LEVEL,최상위 조직 또는 계층 단계 후보,TOP_LEVEL·L1·1·빈 값 등 표현이 혼재함
+legacy_hr,mgr_no,EMP001103,조직에 연결된 관리자 또는 직원 식별자 후보,행 필드 수가 맞지 않는 경우 열 이동 가능성이 있어 구조 검증이 선행되어야 함
+legacy_hr,mgr_nm, 김수아 ,관리자 또는 직원 이름 후보,앞뒤 공백과 전각 공백이 관측됨
+legacy_hr,mgr_dept_nm,생산팀,관리자 또는 직원의 소속 부서명 후보,직원의 현재 소속인지 조직 속성인지 확인이 필요함
+legacy_hr,mgr_pos_nm,과장,관리자 또는 직원의 직위·직책명 후보,직위와 직책을 구분하는 업무 기준이 없음
+legacy_hr,mgr_hire_dtm,2026/05/12 09:58:06,관리자 또는 직원의 입사 일시 후보,날짜 형식이 여러 종류이고 빈 값이 있음
+legacy_hr,mgr_act_yn,재직,관리자 또는 직원의 활성·재직 상태 후보,Boolean처럼 보이는 이름과 상태 문자열이 서로 맞지 않음
+legacy_hr,area_reg_dtm,2017-07-06 05:51:27,조직 또는 영역의 등록 일시 후보,일시 형식이 여러 종류이고 사건 의미가 확정되지 않음
+legacy_hr,top_area_reg_dtm,2021/11/28 04:43:22,최상위 조직의 등록 일시 후보,하위 조직 등록 일시와의 선후 관계를 자동 수정하면 안 됨

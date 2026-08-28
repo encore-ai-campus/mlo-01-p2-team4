@@ -1,0 +1,701 @@
+schema_version: 1
+rules_id: phase4-silver-standardization
+rules_version: "1.0.0"
+status: active
+implementation_status: contract_only
+
+contract:
+  input_type: Phase4Request
+  output_type: Phase4Output
+  accepted_record_type: StandardizedRecord
+  business_record_type: StandardizedBusinessRecord
+  rejected_record_type: RejectedRecord
+  standards_directory_version: v1
+  canonical_terminology: area
+  source_terminology: legacy_field_names_preserved
+  transport: in_memory_pipeline_boundary
+  contract_version_source: context.contract_version
+
+dependencies:
+  area_name_mapping:
+    path: ../mappings/area-name-normalization.csv
+    artifact_status: required_external_artifact
+    bundled_by_this_ruleset: false
+    required_at: ruleset_load
+    missing_action: fail_batch_before_record_processing
+    required_columns:
+      - raw_pattern
+      - canonical_name
+      - rule_type
+      - priority
+      - status
+    allowed_rule_types:
+      - exact
+    allowed_statuses:
+      - approved
+    duplicate_resolution: fail_closed
+  reference_snapshot:
+    source: Phase4Request.reference_snapshot
+    type: ReferenceSnapshot
+    artifact_status: required_runtime_input
+    bundled_by_this_ruleset: false
+    required: true
+    completeness_field: is_complete
+    required_completeness_value: true
+    key_field: area_id
+    missing_or_incomplete_action: fail_batch_before_record_processing
+  contract_lock:
+    path: ../contract-lock.json
+    artifact_status: required_external_artifact
+    bundled_by_this_ruleset: false
+    required_before_phase5_handoff: true
+    missing_action: fail_phase5_handoff
+
+input:
+  request:
+    type: Phase4Request
+    required_members:
+      - context
+      - source_batch
+      - reference_snapshot
+  source_batch:
+    type: SourceBatchTransport
+    record_collection_type: ordered_sequence
+    order_source: batch_record_index
+  source_record:
+    type: SourceRecord
+    unknown_wrapper_fields_action: reject_record
+    unknown_payload_fields_action: reject_record
+    wrapper_fields:
+      - field_name: record_id
+        transport_type: integer
+        nullable: false
+      - field_name: payload
+        transport_type: object
+        nullable: false
+      - field_name: release_slot
+        transport_type: integer
+        nullable: false
+      - field_name: scheduled_release_at
+        transport_type: string
+        logical_type: datetime
+        nullable: false
+      - field_name: source_record_sha256
+        transport_type: string
+        nullable: false
+        canonical_pattern: '^[0-9a-f]{64}$'
+      - field_name: source_row_no
+        transport_type: integer
+        nullable: false
+    payload_field_order:
+      - area_no
+      - area_nm
+      - p_area_no
+      - p_area_nm
+      - top_area_no
+      - top_area_nm
+      - top_area_lvl
+      - mgr_no
+      - mgr_nm
+      - mgr_dept_nm
+      - mgr_pos_nm
+      - mgr_hire_dtm
+      - mgr_act_yn
+      - area_reg_dtm
+      - top_area_reg_dtm
+    duplicate_identity_rules:
+      record_id:
+        duplicate_action: reject_every_record_with_duplicate_value
+      source_row_no:
+        duplicate_action: reject_every_record_with_duplicate_value
+
+standardized_business:
+  field_order:
+    - area_id
+    - area_name
+    - parent_area_id
+    - parent_area_name
+    - top_area_id
+    - top_area_name
+    - top_area_level_code
+    - employee_id
+    - employee_name
+    - employee_department_name
+    - employee_position_name
+    - employee_hire_datetime
+    - employee_status_code
+    - area_registration_date
+    - top_area_registration_date
+  unknown_fields_action: reject_record
+  fields:
+    - source_field: area_no
+      canonical_field: area_id
+      source_type: string
+      source_nullable: false
+      canonical_type: string
+      canonical_nullable: false
+      rule: identifiers.area_identifier
+    - source_field: area_nm
+      canonical_field: area_name
+      source_type: string
+      source_nullable: false
+      canonical_type: string
+      canonical_nullable: false
+      rule: text.area_name
+    - source_field: p_area_no
+      canonical_field: parent_area_id
+      source_type: string
+      source_nullable: true
+      canonical_type: string
+      canonical_nullable: true
+      rule: identifiers.area_identifier
+    - source_field: p_area_nm
+      canonical_field: parent_area_name
+      source_type: string
+      source_nullable: true
+      canonical_type: string
+      canonical_nullable: true
+      rule: text.area_name
+    - source_field: top_area_no
+      canonical_field: top_area_id
+      source_type: string
+      source_nullable: false
+      canonical_type: string
+      canonical_nullable: false
+      rule: identifiers.area_identifier
+    - source_field: top_area_nm
+      canonical_field: top_area_name
+      source_type: string
+      source_nullable: false
+      canonical_type: string
+      canonical_nullable: false
+      rule: text.area_name
+    - source_field: top_area_lvl
+      canonical_field: top_area_level_code
+      source_type: string
+      source_nullable: true
+      canonical_type: string
+      canonical_nullable: false
+      rule: codes.top_area_level_code
+    - source_field: mgr_no
+      canonical_field: employee_id
+      source_type: string
+      source_nullable: false
+      canonical_type: string
+      canonical_nullable: false
+      rule: identifiers.employee_identifier
+    - source_field: mgr_nm
+      canonical_field: employee_name
+      source_type: string
+      source_nullable: true
+      canonical_type: string
+      canonical_nullable: false
+      rule: text.employee_name
+    - source_field: mgr_dept_nm
+      canonical_field: employee_department_name
+      source_type: string
+      source_nullable: true
+      canonical_type: string
+      canonical_nullable: false
+      rule: text.employee_department_name
+    - source_field: mgr_pos_nm
+      canonical_field: employee_position_name
+      source_type: string
+      source_nullable: true
+      canonical_type: string
+      canonical_nullable: false
+      rule: text.employee_position_name
+    - source_field: mgr_hire_dtm
+      canonical_field: employee_hire_datetime
+      source_type: string
+      source_nullable: true
+      canonical_type: string
+      canonical_nullable: false
+      rule: datetimes.business_datetime
+    - source_field: mgr_act_yn
+      canonical_field: employee_status_code
+      source_type: string
+      source_nullable: true
+      canonical_type: string
+      canonical_nullable: false
+      rule: codes.employee_status_code
+    - source_field: area_reg_dtm
+      canonical_field: area_registration_date
+      source_type: string
+      source_nullable: true
+      canonical_type: string
+      canonical_nullable: false
+      rule: datetimes.business_datetime
+    - source_field: top_area_reg_dtm
+      canonical_field: top_area_registration_date
+      source_type: string
+      source_nullable: true
+      canonical_type: string
+      canonical_nullable: false
+      rule: datetimes.business_datetime
+
+missing_values:
+  matching:
+    trim_boundary_whitespace_first: true
+    ascii_tokens_case_insensitive: true
+    non_ascii_tokens_exact: true
+  tokens:
+    - ""
+    - "NULL"
+    - "N/A"
+    - "없음"
+    - "미상"
+    - "-"
+    - "UNKNOWN"
+  nullable_canonical_fields:
+    - parent_area_id
+    - parent_area_name
+  nullable_action: emit_null
+  non_nullable_action: reject_record
+  non_nullable_reason_code: REQUIRED_VALUE_MISSING
+  unlisted_values_are_not_missing: true
+
+rules:
+  identifiers:
+    employee_identifier:
+      rule_id: STD-ID-EMPLOYEE-001
+      source_fields:
+        - mgr_no
+      canonical_fields:
+        - employee_id
+      business_role: official_employee_identifier
+      preprocessing:
+        full_width_space_to_ascii: true
+        trim_boundary_whitespace: true
+        ascii_case: upper
+      source_pattern: '^EMP(?:[ -]?)([0-9]{6})$'
+      pattern_match: full
+      canonical_template: 'EMP{group_1}'
+      canonical_pattern: '^EMP[0-9]{6}$'
+      malformed_action: reject_record
+      reason_code: EMPLOYEE_ID_INVALID
+    area_identifier:
+      rule_id: STD-ID-AREA-001
+      source_fields:
+        - area_no
+        - p_area_no
+        - top_area_no
+      canonical_fields:
+        - area_id
+        - parent_area_id
+        - top_area_id
+      preprocessing:
+        full_width_space_to_ascii: true
+        trim_boundary_whitespace: true
+        ascii_case: upper
+      accepted_separators:
+        - "_"
+        - "-"
+        - " "
+        - ""
+      source_pattern: '^BIZ(?:_|-| )?([0-9]{5})$'
+      pattern_match: full
+      canonical_template: 'BIZ_{group_1}'
+      canonical_pattern: '^BIZ_[0-9]{5}$'
+      malformed_action: reject_record
+      reason_code: AREA_ID_INVALID
+
+  text:
+    base_cleanup:
+      full_width_space_to_ascii: true
+      trim_boundary_whitespace: true
+      preserve_internal_whitespace: true
+      broad_suffix_deletion: prohibited
+      broad_regular_expression_rewrite: prohibited
+    area_name:
+      rule_id: STD-TEXT-AREA-NAME-001
+      source_fields:
+        - area_nm
+        - p_area_nm
+        - top_area_nm
+      canonical_fields:
+        - area_name
+        - parent_area_name
+        - top_area_name
+      base_cleanup: rules.text.base_cleanup
+      mapping_dependency: dependencies.area_name_mapping
+      lookup_mode: exact_after_base_cleanup
+      approved_mapping_rows_only: true
+      canonical_min_length: 1
+      canonical_max_length: 100
+      unmapped_action: reject_record
+      unmapped_reason_code: AREA_NAME_UNMAPPED
+      record_mapping_evidence: true
+    employee_name:
+      rule_id: STD-TEXT-EMPLOYEE-NAME-001
+      source_fields:
+        - mgr_nm
+      canonical_fields:
+        - employee_name
+      base_cleanup: rules.text.base_cleanup
+      canonical_min_length: 1
+      canonical_max_length: 100
+      empty_action: reject_record
+    employee_department_name:
+      rule_id: STD-TEXT-EMPLOYEE-DEPARTMENT-001
+      source_fields:
+        - mgr_dept_nm
+      canonical_fields:
+        - employee_department_name
+      base_cleanup: rules.text.base_cleanup
+      canonical_min_length: 1
+      canonical_max_length: 100
+      empty_action: reject_record
+    employee_position_name:
+      rule_id: STD-TEXT-EMPLOYEE-POSITION-001
+      source_fields:
+        - mgr_pos_nm
+      canonical_fields:
+        - employee_position_name
+      base_cleanup: rules.text.base_cleanup
+      canonical_min_length: 1
+      canonical_max_length: 100
+      empty_action: reject_record
+
+  codes:
+    employee_status_code:
+      rule_id: STD-CODE-EMPLOYEE-STATUS-001
+      source_fields:
+        - mgr_act_yn
+      canonical_fields:
+        - employee_status_code
+      preprocessing:
+        full_width_space_to_ascii: true
+        trim_boundary_whitespace: true
+        ascii_case: upper
+      mappings:
+        ACTIVE:
+          - "Y"
+          - "YES"
+          - "1"
+          - "재직"
+          - "사용"
+          - "ACTIVE"
+        INACTIVE:
+          - "N"
+          - "NO"
+          - "0"
+          - "퇴직"
+          - "미사용"
+          - "INACTIVE"
+      canonical_values:
+        - ACTIVE
+        - INACTIVE
+      unknown_action: reject_record
+      unknown_reason_code: EMPLOYEE_STATUS_UNKNOWN
+      default_value: prohibited
+    top_area_level_code:
+      rule_id: STD-CODE-TOP-AREA-LEVEL-001
+      source_fields:
+        - top_area_lvl
+      canonical_fields:
+        - top_area_level_code
+      preprocessing:
+        full_width_space_to_ascii: true
+        trim_boundary_whitespace: true
+        ascii_case: upper
+        preserve_internal_whitespace: true
+      mappings:
+        TOP_LEVEL:
+          - "TOP_LEVEL"
+          - "TOP LEVEL"
+          - "L1"
+          - "1"
+          - "최상위"
+      canonical_values:
+        - TOP_LEVEL
+      unknown_action: reject_record
+      unknown_reason_code: TOP_AREA_LEVEL_UNKNOWN
+      default_value: prohibited
+
+  datetimes:
+    business_datetime:
+      rule_id: STD-DATETIME-BUSINESS-001
+      source_fields:
+        - mgr_hire_dtm
+        - area_reg_dtm
+        - top_area_reg_dtm
+      canonical_fields:
+        - employee_hire_datetime
+        - area_registration_date
+        - top_area_registration_date
+      preprocessing:
+        full_width_space_to_ascii: true
+        trim_boundary_whitespace: true
+      supported_input_formats:
+        - "%Y-%m-%dT%H:%M:%S%z"
+        - "%Y-%m-%dT%H:%M:%S"
+        - "%Y-%m-%d %H:%M:%S"
+        - "%Y-%m-%d %H:%M:%S.%f"
+        - "%Y/%m/%d %H:%M:%S"
+        - "%Y.%m.%d %H:%M:%S"
+        - "%Y%m%d%H%M%S"
+      parse_mode: exact_full_value
+      validate_calendar_value: true
+      invalid_sentinels:
+        - "0000-00-00 00:00:00"
+        - "9999-99-99 99:99:99"
+        - "9999/99/99 99:99:99"
+      fractional_seconds:
+        accepted_only_when_microsecond_equals: 0
+        nonzero_action: reject_record
+      timezone:
+        canonical_zone: Asia/Seoul
+        naive_input_zone: Asia/Seoul
+        aware_input_action: convert_to_canonical_zone
+        canonical_output_offset: omitted
+      canonical_format: "%Y-%m-%dT%H:%M:%S"
+      canonical_pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$'
+      invalid_action: reject_record
+      invalid_reason_code: DATETIME_INVALID
+
+hierarchy_and_reference:
+  area_relation:
+    parent_source: parent_area_id
+    relationship: immediate_parent_only
+    top_area_as_direct_parent: prohibited
+    inferred_hierarchy_traversal: prohibited
+  top_area:
+    classification: lookup_reference
+    independent_entity: false
+    source_fields_only: true
+    derive_from_parent_traversal: prohibited
+  parent_pair:
+    parent_id_absent_parent_name_present_action: reject_record
+    inconsistent_pair_reason_code: PARENT_AREA_FIELDS_INCONSISTENT
+    parent_id_present_parent_name_absent: allowed
+  parent_id_absent:
+    comparison_fields:
+      - area_name
+      - top_area_name
+    comparison_stage: after_area_name_mapping
+    accept_when: values_equal
+    accepted_parent_area_id: null
+    accepted_parent_area_name: null
+    unequal_action: reject_record
+    unequal_reason_code: PARENT_AREA_MISSING
+  parent_id_present:
+    self_parent_comparison:
+      left: area_id
+      right: parent_area_id
+      equal_action: reject_record
+      equal_reason_code: PARENT_AREA_SELF_REFERENCE
+    reference_dependency: dependencies.reference_snapshot
+    reference_lookup_field: area_id
+    missing_reference_action: reject_record
+    missing_reference_reason_code: PARENT_AREA_REFERENCE_NOT_FOUND
+    reference_value_backfill: prohibited
+
+conflict_resolution:
+  evaluation_stage: after_record_standardization_before_phase4_output
+  comparison_serialization: canonical_json
+  key_groups:
+    employee:
+      key_fields:
+        - employee_id
+      projected_fields:
+        - employee_id
+        - employee_name
+        - employee_department_name
+        - employee_position_name
+        - employee_hire_datetime
+        - employee_status_code
+    area:
+      key_fields:
+        - area_id
+      projected_fields:
+        - area_id
+        - area_name
+        - parent_area_id
+        - employee_id
+        - area_registration_date
+    parent_area:
+      key_fields:
+        - top_area_id
+      projected_fields:
+        - top_area_id
+        - top_area_name
+        - top_area_level_code
+        - top_area_registration_date
+    join_reference:
+      key_fields:
+        - area_id
+        - employee_id
+      projected_fields:
+        - area_id
+        - parent_area_id
+        - parent_area_name
+        - employee_id
+        - employee_name
+        - employee_department_name
+        - employee_position_name
+        - employee_hire_datetime
+        - employee_status_code
+  same_key_same_projected_data:
+    action: deduplicate
+    lineage_action: aggregate_unique_source_record_ids_ascending
+  same_key_different_projected_data:
+    action: fail_closed
+    failure_scope: batch
+    exception: Phase4ContractViolation
+  first_wins: prohibited
+  last_wins: prohibited
+  input_order_must_not_change_result: true
+
+reject_contract:
+  record_type: RejectedRecord
+  one_row_per_source_record: true
+  required_fields:
+    - observed_lineage
+    - raw_json
+    - violations
+  observed_lineage:
+    preserve_observed_values: true
+    required_fields:
+      - batch_record_index
+      - record_id
+      - source_row_no
+      - source_record_sha256
+      - release_slot
+      - scheduled_release_at
+  raw_json:
+    source: complete_original_source_object
+    serialization: canonical_json
+    parse_semantics: equal_to_original_json_value
+    original_whitespace_preservation: false
+  violations:
+    accumulate_all_detected: true
+    duplicate_violations: prohibited
+    deterministic_order:
+      - code
+      - rule_id
+      - field
+      - detail
+    required_fields:
+      - code
+      - rule_id
+      - field
+      - detail
+  registered_reason_codes:
+    - SOURCE_WRAPPER_INVALID
+    - SOURCE_PAYLOAD_FIELD_SET_INVALID
+    - SOURCE_TYPE_INVALID
+    - DUPLICATE_RECORD_ID
+    - DUPLICATE_SOURCE_ROW_NO
+    - SHA256_INVALID
+    - REQUIRED_VALUE_MISSING
+    - EMPLOYEE_ID_INVALID
+    - AREA_ID_INVALID
+    - AREA_NAME_UNMAPPED
+    - EMPLOYEE_STATUS_UNKNOWN
+    - TOP_AREA_LEVEL_UNKNOWN
+    - DATETIME_INVALID
+    - PARENT_AREA_FIELDS_INCONSISTENT
+    - PARENT_AREA_MISSING
+    - PARENT_AREA_SELF_REFERENCE
+    - PARENT_AREA_REFERENCE_NOT_FOUND
+    - CANONICAL_KEY_CONFLICT
+  unregistered_reason_code_action: fail_batch
+
+output:
+  phase4_output:
+    type: Phase4Output
+    collection_type: immutable_tuple
+    field_order:
+      - context
+      - accepted
+      - rejected
+      - metrics
+  accepted:
+    record_type: StandardizedRecord
+    required_fields:
+      - lineage
+      - business
+      - record_fingerprint
+    business_type: StandardizedBusinessRecord
+    business_field_order_ref: standardized_business.field_order
+    forbidden_business_fields:
+      - raw_json
+      - record_id
+      - release_slot
+      - source_record_sha256
+      - source_row_no
+      - scheduled_release_at
+  rejected:
+    contract_ref: reject_contract
+  metrics:
+    required_fields:
+      - contract_version
+      - input_count
+      - accepted_count
+      - rejected_count
+      - excluded_count
+    excluded_count: 0
+    accounting_expression: input_count_equals_accepted_plus_rejected_plus_excluded
+  disposition:
+    exactly_one_per_input_source_record: true
+    accepted_and_rejected_overlap: prohibited
+    excluded: prohibited
+  deterministic_order:
+    accepted: batch_record_index_ascending
+    rejected: batch_record_index_ascending
+
+fingerprints_and_checksums:
+  canonical_json:
+    encoding: utf-8
+    ensure_ascii: false
+    sort_keys: true
+    separators:
+      - ","
+      - ":"
+  standardized_record_fingerprint:
+    algorithm: sha256
+    serialization_ref: fingerprints_and_checksums.canonical_json
+    payload_fields:
+      - contract_version
+      - lineage.record_id
+      - business
+    business_fields_ref: standardized_business.field_order
+    output_field: record_fingerprint
+    phase5_recomputation_callback_required: true
+  contract_lock:
+    dependency_ref: dependencies.contract_lock
+    checksum_algorithm: sha256
+    must_cover:
+      - standardization.yaml
+      - area-name-normalization.csv
+      - Phase4Output schema
+    lock_version_and_checksum_required_in_context: true
+  input_source_checksum:
+    algorithm: sha256
+    verify_before_processing: true
+    verify_before_phase4_handoff: true
+    mismatch_action: fail_batch
+
+validation_gates:
+  ruleset_load:
+    - no_duplicate_yaml_keys
+    - required_external_dependency_inventory
+    - exact_source_to_canonical_mapping
+    - exact_standardized_business_field_order
+    - exact_projection_field_order
+    - registered_reason_code_references
+  record_processing:
+    - source_structure_and_type_validation
+    - missing_value_validation
+    - identifier_validation
+    - explicit_area_name_mapping
+    - code_mapping_validation
+    - calendar_and_timezone_validation
+    - hierarchy_and_reference_validation
+  batch_finalization:
+    - deterministic_conflict_resolution
+    - one_disposition_per_input_record
+    - excluded_count_equals_zero
+    - closed_row_accounting
+    - deterministic_fingerprint_recomputation

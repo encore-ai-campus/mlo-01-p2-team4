@@ -1,0 +1,105 @@
+schema_version: 1
+rules_id: phase5-silver-modeling
+rules_version: "1.0.0"
+status: active
+contract:
+  input_type: Phase5ProjectionResult
+  output_type: Phase5Output
+  standards_directory_version: v1
+  runtime_contract_version_source: context.contract_version
+  passthrough_identity_fields:
+    - context
+    - rejected
+    - source_metrics
+models:
+  employee:
+    model_name: employee
+    model_key: employee_id
+    data_fields:
+      - employee_id
+      - employee_name
+      - employee_department_name
+      - employee_position_name
+      - employee_hire_datetime
+      - employee_status_code
+    nullable_fields: []
+  area:
+    model_name: area
+    model_key: area_id
+    data_fields:
+      - area_id
+      - area_name
+      - parent_area_id
+      - employee_id
+      - area_registration_date
+    nullable_fields:
+      - parent_area_id
+  parent_area:
+    model_name: parent_area
+    model_key: top_area_id
+    data_fields:
+      - top_area_id
+      - top_area_name
+      - top_area_level_code
+      - top_area_registration_date
+    nullable_fields: []
+  join_reference:
+    model_name: join_reference
+    model_key:
+      - area_id
+      - employee_id
+    data_fields:
+      - area_id
+      - parent_area_id
+      - parent_area_name
+      - employee_id
+      - employee_name
+      - employee_department_name
+      - employee_position_name
+      - employee_hire_datetime
+      - employee_status_code
+    nullable_fields:
+      - parent_area_id
+      - parent_area_name
+assembly:
+  same_key_same_data: merge
+  same_key_different_data: fail_closed
+  conflict_exception: Phase4ContractViolation
+  collection_order: model_key_ascending
+  source_record_ids:
+    data_type: integer
+    unique: true
+    order: ascending
+  model_counts_source: deduplicated_collections
+validation:
+  json_schema:
+    authority: structural_output_contract
+    enforced_invariants:
+      - metadata_model_key_components_identifier20
+      - metadata_source_record_ids_non_empty_unique_integers
+  runtime:
+    authority: Phase5ModelValidator
+    error_type: Phase5ModelValidationError
+    semantic_invariants:
+      - invariant_id: metadata_model_key_equals_data_key
+        description: metadata.model_key는 모델별 canonical data key와 같아야 한다.
+      - invariant_id: metadata_source_record_ids_ascending
+        description: metadata.source_record_ids는 중복 없이 오름차순이어야 한다.
+      - invariant_id: metadata_source_record_ids_in_phase4_accepted_lineage
+        description: metadata.source_record_ids는 Phase 4 accepted lineage에 존재해야 한다.
+      - invariant_id: model_counts_equal_collection_lengths
+        description: model_counts의 각 값은 대응하는 최종 collection 길이와 같아야 한다.
+fingerprint:
+  algorithm: sha256
+  encoding: utf-8
+  serialization: canonical_json
+  ensure_ascii: false
+  separators:
+    - ","
+    - ":"
+  sort_keys: true
+  payload_fields:
+    - model_name
+    - data
+    - contract_version
+  contract_version_source: context.contract_version

@@ -1,0 +1,40 @@
+version: 1
+status: draft
+language:
+  logical_name: ko
+  physical_name: en
+rules:
+  physical_case: lower_snake_case
+  physical_name_pattern: '^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$'
+  entity_noun_number: singular
+  word_separator: '_'
+  identifier_suffix: '_id'
+  code_suffix: '_code'
+  datetime_suffix: '_datetime'
+  approved_abbreviations:
+    - id
+  prohibited_legacy_abbreviations:
+    - no
+    - nm
+    - p_area
+    - mgr
+    - dept
+    - pos
+    - dtm
+    - act
+    - yn
+  source_prefixes_requiring_semantic_review:
+    - area
+    - mgr
+examples:
+  valid:
+    - area_id
+    - parent_area_name
+    - top_area_level_code
+    - employee_status_code
+    - employee_hire_datetime
+    - area_registration_date
+  invalid:
+    - area_no
+    - mgr_nm
+    - employeeName

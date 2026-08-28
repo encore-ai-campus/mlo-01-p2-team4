@@ -1,9 +1,12 @@
-"""Phase 4 계약을 재검증하고 Phase 5 모델 후보를 생성한다."""
+"""Phase 4 계약부터 Phase 7 교차 검증까지 Silver 모델을 처리한다."""
 
 import re
 from dataclasses import fields, is_dataclass
 from datetime import datetime
 
+from ..contracts.phase5 import JoinReferenceKey, Phase5Output
+from .assembly import assemble_phase5_output
+from .model_validator import Phase5ModelValidator
 from .phase4_binding import (
     Phase4ContractViolation,
     Phase4IntegrationBinding,
@@ -21,58 +24,59 @@ from .projections import (
 )
 
 BUSINESS_FIELD_NAMES = (
-    "division_id",
-    "division_name",
-    "parent_division_id",
-    "parent_division_name",
-    "top_division_id",
-    "top_division_name",
-    "division_level_code",
+    "area_id",
+    "area_name",
+    "parent_area_id",
+    "parent_area_name",
+    "top_area_id",
+    "top_area_name",
+    "top_area_level_code",
     "employee_id",
     "employee_name",
     "employee_department_name",
     "employee_position_name",
     "employee_hire_datetime",
     "employee_status_code",
-    "division_registered_datetime",
-    "top_division_registered_datetime",
+    "area_registration_date",
+    "top_area_registration_date",
 )
 
 REQUIRED_STRING_FIELDS = (
-    "division_id",
-    "division_name",
-    "top_division_id",
-    "top_division_name",
+    "area_id",
+    "area_name",
+    "top_area_level_code",
+    "top_area_id",
+    "top_area_name",
     "employee_id",
-)
-
-NULLABLE_STRING_FIELDS = (
-    "parent_division_id",
-    "parent_division_name",
-    "division_level_code",
     "employee_name",
     "employee_department_name",
     "employee_position_name",
     "employee_hire_datetime",
     "employee_status_code",
-    "division_registered_datetime",
-    "top_division_registered_datetime",
+    "area_registration_date",
+    "top_area_registration_date",
+)
+
+NULLABLE_STRING_FIELDS = (
+    "parent_area_id",
+    "parent_area_name",
 )
 
 DATETIME_FIELDS = (
     "employee_hire_datetime",
-    "division_registered_datetime",
-    "top_division_registered_datetime",
+    "area_registration_date",
+    "top_area_registration_date",
 )
 
-DIVISION_ID_PATTERN = re.compile(r"BIZ_[0-9]{5}")
-EMPLOYEE_ID_PATTERN = re.compile(r"EMP[0-9]{6}")
+IDENTIFIER_PATTERN = re.compile(r"[A-Z][A-Z0-9_]{0,19}")
+NAME_PATTERN = re.compile(r".{1,100}")
+LEVEL_CODE_PATTERN = re.compile(r"[A-Z0-9_]{1,20}")
+STATUS_CODE_PATTERN = re.compile(r"[A-Z0-9_]{1,20}")
 CANONICAL_DATETIME_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}")
-EMPLOYEE_STATUS_CODES = frozenset(("ACTIVE", "INACTIVE"))
 
 
 class Phase5Processor:
-    """Plan 1 공유 검증 뒤에서 Phase 5 방어 검증과 투영을 수행한다."""
+    """Phase 4를 방어 검증하고 최종 Phase 5 Silver 출력을 생성한다."""
 
     def __init__(
         self,
@@ -89,17 +93,39 @@ class Phase5Processor:
             binding = unavailable_phase4_binding()
         self._binding = binding
 
-    def process(self, phase4_output: object) -> Phase5ProjectionResult:
-        """Phase 4 출력을 검증하고 중복 제거 전 모델 후보로 투영한다.
-
-        이 메서드는 Phase 6의 dedup, source ID 집계, model fingerprint, 정렬,
-        count와 최종 ``Phase5Output`` 조립을 수행하지 않는다.
+    def process(self, phase4_output: object) -> Phase5Output:
+        """Phase 4 출력을 한 번 검증·투영하고 최종 Phase 5 출력을 조립한다.
 
         Args:
             phase4_output: 실제 Plan 1 ``Phase4Output`` 객체.
 
         Returns:
-            context·reject·source metrics를 그대로 보존한 내부 projection 결과.
+            context·reject·source metrics 원본과 결정적 모델 레코드를 담은 출력.
+
+        Raises:
+            Phase4IntegrationUnavailable: 공유 Plan 1 결합이 제공되지 않은 경우.
+            Phase4ContractViolation: Phase 4 입력 계약이나 projection 일관성이
+                깨진 경우.
+            Phase5ModelValidationError: 조립된 네 모델의 Phase 7 교차 검증이
+                실패한 경우.
+        """
+
+        projection_result = self._validate_and_project(phase4_output)
+        phase5_output = assemble_phase5_output(projection_result)
+        Phase5ModelValidator.validate(phase4_output, phase5_output)
+        return phase5_output
+
+    def _validate_and_project(
+        self,
+        phase4_output: object,
+    ) -> Phase5ProjectionResult:
+        """기존 Phase 5 방어 검증을 수행하고 내부 모델 후보를 한 번 생성한다.
+
+        Args:
+            phase4_output: 실제 Plan 1 ``Phase4Output`` 객체.
+
+        Returns:
+            입력 순서와 원래 context·reject·metrics를 보존한 projection 결과.
 
         Raises:
             Phase4IntegrationUnavailable: 공유 Plan 1 결합이 제공되지 않은 경우.
@@ -151,21 +177,24 @@ class Phase5Processor:
             )
             area_candidates.append(
                 ProjectionCandidate(
-                    model_key=area_data.division_id,
+                    model_key=area_data.area_id,
                     data=area_data,
                     source_record_id=source_record_id,
                 )
             )
             parent_area_candidates.append(
                 ProjectionCandidate(
-                    model_key=parent_area_data.top_division_id,
+                    model_key=parent_area_data.top_area_id,
                     data=parent_area_data,
                     source_record_id=source_record_id,
                 )
             )
             join_reference_candidates.append(
                 ProjectionCandidate(
-                    model_key=join_reference_data.division_id,
+                    model_key=JoinReferenceKey(
+                        area_id=join_reference_data.area_id,
+                        employee_id=join_reference_data.employee_id,
+                    ),
                     data=join_reference_data,
                     source_record_id=source_record_id,
                 )
@@ -399,26 +428,51 @@ def _validate_standardized_business(
 
     _validate_pattern_field(
         business,
-        "division_id",
-        DIVISION_ID_PATTERN,
+        "area_id",
+        IDENTIFIER_PATTERN,
         location,
     )
     _validate_optional_pattern_field(
         business,
-        "parent_division_id",
-        DIVISION_ID_PATTERN,
+        "parent_area_id",
+        IDENTIFIER_PATTERN,
         location,
     )
     _validate_pattern_field(
         business,
-        "top_division_id",
-        DIVISION_ID_PATTERN,
+        "top_area_id",
+        IDENTIFIER_PATTERN,
         location,
     )
     _validate_pattern_field(
         business,
         "employee_id",
-        EMPLOYEE_ID_PATTERN,
+        IDENTIFIER_PATTERN,
+        location,
+    )
+    for field_name in (
+        "area_name",
+        "top_area_name",
+        "employee_name",
+        "employee_department_name",
+        "employee_position_name",
+    ):
+        _validate_pattern_field(
+            business,
+            field_name,
+            NAME_PATTERN,
+            location,
+        )
+    _validate_optional_pattern_field(
+        business,
+        "parent_area_name",
+        NAME_PATTERN,
+        location,
+    )
+    _validate_pattern_field(
+        business,
+        "top_area_level_code",
+        LEVEL_CODE_PATTERN,
         location,
     )
     _validate_employee_status(business, location)
@@ -517,14 +571,14 @@ def _validate_optional_pattern_field(
 
 
 def _validate_employee_status(business: object, location: str) -> None:
-    """nullable 직원 상태가 승인된 두 canonical code 중 하나인지 확인한다.
+    """필수 직원 상태가 표준 상태 코드 형식인지 확인한다.
 
     Args:
         business: 검증할 StandardizedBusinessRecord.
         location: 해당 business를 가진 accepted 위치.
 
     Raises:
-        Phase4ContractViolation: non-None 상태가 ACTIVE/INACTIVE가 아닌 경우.
+        Phase4ContractViolation: 상태가 없거나 표준 형식과 다른 경우.
     """
 
     status_code = _required_attribute(
@@ -532,7 +586,10 @@ def _validate_employee_status(business: object, location: str) -> None:
         "employee_status_code",
         f"{location}.business",
     )
-    if status_code is not None and status_code not in EMPLOYEE_STATUS_CODES:
+    if (
+        not isinstance(status_code, str)
+        or STATUS_CODE_PATTERN.fullmatch(status_code) is None
+    ):
         raise Phase4ContractViolation(
             f"{location}.business.employee_status_code violates its canonical domain"
         )
@@ -543,7 +600,7 @@ def _validate_canonical_datetime(
     field_name: str,
     location: str,
 ) -> None:
-    """nullable 일시가 naive ISO seconds 문자열인지 확인한다.
+    """필수 일시가 naive ISO seconds 문자열인지 확인한다.
 
     Args:
         business: 검증할 StandardizedBusinessRecord.
@@ -551,7 +608,7 @@ def _validate_canonical_datetime(
         location: 해당 business를 가진 accepted 위치.
 
     Raises:
-        Phase4ContractViolation: non-None 값의 형식이나 달력 값이 잘못된 경우.
+        Phase4ContractViolation: 값이 없거나 형식·달력 값이 잘못된 경우.
     """
 
     field_value = _required_attribute(
@@ -559,8 +616,6 @@ def _validate_canonical_datetime(
         field_name,
         f"{location}.business",
     )
-    if field_value is None:
-        return
     if (
         not isinstance(field_value, str)
         or CANONICAL_DATETIME_PATTERN.fullmatch(field_value) is None

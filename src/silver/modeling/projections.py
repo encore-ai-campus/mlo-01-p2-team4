@@ -7,6 +7,7 @@ from ..contracts.phase5 import (
     AreaData,
     EmployeeData,
     JoinReferenceData,
+    ModelKey,
     ParentAreaData,
 )
 from .phase4_binding import Phase4ContractViolation
@@ -18,7 +19,7 @@ ProjectionDataT = TypeVar("ProjectionDataT")
 class ProjectionCandidate(Generic[ProjectionDataT]):
     """Phase 6 dedup 전 모델 데이터와 단일 원천 record ID를 보존한다."""
 
-    model_key: str
+    model_key: ModelKey
     data: ProjectionDataT
     source_record_id: int
 
@@ -69,11 +70,11 @@ def project_area(business: object) -> AreaData:
 
     source = cast(Any, business)
     return AreaData(
-        division_id=source.division_id,
-        division_name=source.division_name,
-        parent_division_id=source.parent_division_id,
+        area_id=source.area_id,
+        area_name=source.area_name,
+        parent_area_id=source.parent_area_id,
         employee_id=source.employee_id,
-        division_registered_datetime=source.division_registered_datetime,
+        area_registration_date=source.area_registration_date,
     )
 
 
@@ -89,10 +90,10 @@ def project_parent_area(business: object) -> ParentAreaData:
 
     source = cast(Any, business)
     return ParentAreaData(
-        top_division_id=source.top_division_id,
-        top_division_name=source.top_division_name,
-        division_level_code=source.division_level_code,
-        top_division_registered_datetime=(source.top_division_registered_datetime),
+        top_area_id=source.top_area_id,
+        top_area_name=source.top_area_name,
+        top_area_level_code=source.top_area_level_code,
+        top_area_registration_date=(source.top_area_registration_date),
     )
 
 
@@ -103,14 +104,14 @@ def project_join_reference(business: object) -> JoinReferenceData:
         business: Phase 5 방어 검증을 통과한 StandardizedBusinessRecord.
 
     Returns:
-        division name·top 필드·등록 일시를 제외한 JoinReferenceData.
+        area name·top 필드·등록 일시를 제외한 JoinReferenceData.
     """
 
     source = cast(Any, business)
     return JoinReferenceData(
-        division_id=source.division_id,
-        parent_division_id=source.parent_division_id,
-        parent_division_name=source.parent_division_name,
+        area_id=source.area_id,
+        parent_area_id=source.parent_area_id,
+        parent_area_name=source.parent_area_name,
         employee_id=source.employee_id,
         employee_name=source.employee_name,
         employee_department_name=source.employee_department_name,
@@ -137,8 +138,8 @@ def ensure_no_projection_conflicts(
         Phase4ContractViolation: 같은 키에서 서로 다른 데이터가 발견된 경우.
     """
 
-    first_data_by_key: dict[str, ProjectionDataT] = {}
-    first_source_id_by_key: dict[str, int] = {}
+    first_data_by_key: dict[ModelKey, ProjectionDataT] = {}
+    first_source_id_by_key: dict[ModelKey, int] = {}
 
     for candidate in candidates:
         model_key = candidate.model_key
