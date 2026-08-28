@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/hr-silver/v1/reference-snapshot.schema.json",
+  "title": "HR Silver reference snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["dataset_id", "snapshot_id", "complete", "canonical_area_ids"],
+  "properties": {
+    "dataset_id": {"type": "string", "minLength": 1},
+    "snapshot_id": {"type": "string", "minLength": 1},
+    "complete": {"type": "boolean"},
+    "canonical_area_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^BIZ_[0-9]{5}$"}
+    }
+  }
+}

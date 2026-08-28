@@ -1,0 +1,18 @@
+word_id,logical_word,english_word,approved_abbreviation,definition,legacy_examples
+AREA,업무영역,area,,업무를 분류하거나 수행하는 표준 영역,area
+PARENT,상위,parent,,현재 업무 영역보다 한 단계 위에 있는 영역,p
+TOP,최상위,top,,업무 영역 계층에서 가장 위에 있는 영역,top
+EMPLOYEE,직원,employee,,조직에 소속되어 업무를 수행하는 사람,emp|mgr
+DEPARTMENT,부서,department,,직원이 소속되어 업무를 수행하는 조직 단위,dept
+POSITION,직위,position,,직원에게 부여된 직급이나 신분,pos
+HIRE,입사,hire,,직원이 고용 관계를 시작하는 업무 사건,hire
+IS,여부,is,,참과 거짓을 나타내는 논리형 속성의 접두어,yn
+ACTIVE,활성,active,,직원이 현재 활성 상태인지 나타내는 말,act
+STATUS,상태,status,,직원의 현재 활성 또는 비활성 상태를 나타내는 말,status
+REGISTRATION,등록,registration,,업무 객체가 시스템에 등록되는 업무 사건,reg
+LEVEL,단계,level,,업무 영역 계층에서의 깊이나 위치,lvl
+DATE,일자,date,,날짜만 나타내는 값,dt|dtm
+DATETIME,일시,datetime,,날짜와 시간을 함께 나타내는 값,dtm
+ID,ID,identifier,ID,대상을 유일하게 식별하기 위해 사용하는 값,no
+NAME,명,name,,대상의 이름을 나타내는 값,nm
+CODE,코드,code,,정해진 규칙에 따라 상태나 유형을 구분하는 값,cd

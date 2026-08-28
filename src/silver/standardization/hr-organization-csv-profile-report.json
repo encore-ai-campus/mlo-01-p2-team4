@@ -1,0 +1,858 @@
+{
+  "status": "review-required",
+  "scope": {
+    "source": "standardized_payload_mysql.csv",
+    "source_type": "csv",
+    "official_csv_available": true,
+    "official_unique_field_count": 16,
+    "observed_payload_field_count": 15
+  },
+  "grain": {
+    "row_meaning": "하나의 area 원본 레코드에 상위 조직과 관리자 정보가 결합된 행",
+    "business_key": null,
+    "candidate_source_identifier": [
+      "area_no"
+    ],
+    "reason": "공식 기준 파일이 없고 area_no의 업무 의미가 미확정임"
+  },
+  "row_count": 21766,
+  "column_count": 15,
+  "columns": [
+    "area_nm",
+    "area_no",
+    "area_reg_dtm",
+    "mgr_act_yn",
+    "mgr_dept_nm",
+    "mgr_hire_dtm",
+    "mgr_nm",
+    "mgr_no",
+    "mgr_pos_nm",
+    "p_area_nm",
+    "p_area_no",
+    "top_area_lvl",
+    "top_area_nm",
+    "top_area_no",
+    "top_area_reg_dtm"
+  ],
+  "missing_expected_columns": [],
+  "unexpected_columns": [],
+  "payload_key_sets_equal": true,
+  "duplicate_exact_rows": 4,
+  "column_profiles": {
+    "area_nm": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 0,
+      "distinct_raw_count": 200,
+      "distinct_trimmed_count": 200,
+      "distinct_candidate_count": 200,
+      "conversion_failure_count": 0,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 0,
+      "internal_space_candidate_count": 0,
+      "pattern_counts": {
+        "PLAIN": 21766
+      },
+      "pattern_samples": {
+        "PLAIN": [
+          "보안관리",
+          "전략플랫폼",
+          "교육플랫폼",
+          "IT프로세스",
+          "기획분석"
+        ]
+      }
+    },
+    "area_no": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 0,
+      "distinct_raw_count": 21525,
+      "distinct_trimmed_count": 21525,
+      "distinct_candidate_count": 21525,
+      "conversion_failure_count": 0,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 0,
+      "internal_space_candidate_count": 0,
+      "pattern_counts": {
+        "BIZ_UNDERSCORE": 21766
+      },
+      "pattern_samples": {
+        "BIZ_UNDERSCORE": [
+          "BIZ_11608",
+          "BIZ_31536",
+          "BIZ_38290",
+          "BIZ_19140",
+          "BIZ_17549"
+        ]
+      }
+    },
+    "area_reg_dtm": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 0,
+      "distinct_raw_count": 21456,
+      "distinct_trimmed_count": 21456,
+      "distinct_candidate_count": 21455,
+      "conversion_failure_count": 116,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 21650,
+      "internal_space_candidate_count": 21650,
+      "pattern_counts": {
+        "SPACE": 21650,
+        "INVALID_OR_OTHER": 116
+      },
+      "pattern_samples": {
+        "SPACE": [
+          "2018-10-25 09:31:19",
+          "2017-07-06 05:51:27",
+          "2025-04-20 08:42:42",
+          "2017-04-26 00:27:47",
+          "2017-02-07 07:35:24"
+        ],
+        "INVALID_OR_OTHER": [
+          "\\N"
+        ]
+      }
+    },
+    "mgr_act_yn": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 0,
+      "distinct_raw_count": 3,
+      "distinct_trimmed_count": 3,
+      "distinct_candidate_count": 0,
+      "conversion_failure_count": 21766,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 0,
+      "internal_space_candidate_count": 0,
+      "pattern_counts": {
+        "OTHER_STATUS": 21766
+      },
+      "pattern_samples": {
+        "OTHER_STATUS": [
+          "ACTIVE",
+          "INACTIVE",
+          "\\N"
+        ]
+      }
+    },
+    "mgr_dept_nm": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 0,
+      "distinct_raw_count": 22,
+      "distinct_trimmed_count": 22,
+      "distinct_candidate_count": 22,
+      "conversion_failure_count": 0,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 0,
+      "internal_space_candidate_count": 0,
+      "pattern_counts": {
+        "PLAIN": 21766
+      },
+      "pattern_samples": {
+        "PLAIN": [
+          "분석팀",
+          "생산팀",
+          "교육운영팀",
+          "IT운영팀",
+          "인사팀"
+        ]
+      }
+    },
+    "mgr_hire_dtm": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 0,
+      "distinct_raw_count": 2998,
+      "distinct_trimmed_count": 2998,
+      "distinct_candidate_count": 2997,
+      "conversion_failure_count": 250,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 21516,
+      "internal_space_candidate_count": 21516,
+      "pattern_counts": {
+        "SPACE": 21516,
+        "INVALID_OR_OTHER": 250
+      },
+      "pattern_samples": {
+        "SPACE": [
+          "2021-12-01 05:30:46",
+          "2026-05-12 09:58:06",
+          "2021-09-24 09:48:02",
+          "2013-02-18 04:34:59",
+          "2016-09-24 18:38:46"
+        ],
+        "INVALID_OR_OTHER": [
+          "\\N"
+        ]
+      }
+    },
+    "mgr_nm": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 253,
+      "distinct_raw_count": 182,
+      "distinct_trimmed_count": 182,
+      "distinct_candidate_count": 181,
+      "conversion_failure_count": 0,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 0,
+      "internal_space_candidate_count": 0,
+      "pattern_counts": {
+        "PLAIN": 21513,
+        "NULL_OR_SENTINEL": 253
+      },
+      "pattern_samples": {
+        "PLAIN": [
+          "이민서",
+          "김수아",
+          "강서준",
+          "박주원",
+          "윤준서"
+        ],
+        "NULL_OR_SENTINEL": [
+          "오류값"
+        ]
+      }
+    },
+    "mgr_no": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 0,
+      "distinct_raw_count": 2999,
+      "distinct_trimmed_count": 2999,
+      "distinct_candidate_count": 2999,
+      "conversion_failure_count": 0,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 0,
+      "internal_space_candidate_count": 0,
+      "pattern_counts": {
+        "EMP_COMPACT": 21657,
+        "OTHER_IDENTIFIER": 109
+      },
+      "pattern_samples": {
+        "EMP_COMPACT": [
+          "EMP000038",
+          "EMP001103",
+          "EMP001921",
+          "EMP002583",
+          "EMP000436"
+        ],
+        "OTHER_IDENTIFIER": [
+          "\\N"
+        ]
+      }
+    },
+    "mgr_pos_nm": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 105,
+      "distinct_raw_count": 10,
+      "distinct_trimmed_count": 10,
+      "distinct_candidate_count": 9,
+      "conversion_failure_count": 0,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 0,
+      "internal_space_candidate_count": 0,
+      "pattern_counts": {
+        "PLAIN": 21661,
+        "NULL_OR_SENTINEL": 105
+      },
+      "pattern_samples": {
+        "PLAIN": [
+          "팀장",
+          "과장",
+          "차장",
+          "실장",
+          "부장"
+        ],
+        "NULL_OR_SENTINEL": [
+          "미상"
+        ]
+      }
+    },
+    "p_area_nm": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 126,
+      "distinct_raw_count": 22,
+      "distinct_trimmed_count": 22,
+      "distinct_candidate_count": 21,
+      "conversion_failure_count": 0,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 0,
+      "internal_space_candidate_count": 0,
+      "pattern_counts": {
+        "PLAIN": 21640,
+        "NULL_OR_SENTINEL": 126
+      },
+      "pattern_samples": {
+        "PLAIN": [
+          "기획",
+          "인사",
+          "R&D",
+          "교육",
+          "생산"
+        ],
+        "NULL_OR_SENTINEL": [
+          "미상"
+        ]
+      }
+    },
+    "p_area_no": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 0,
+      "distinct_raw_count": 1001,
+      "distinct_trimmed_count": 1001,
+      "distinct_candidate_count": 1001,
+      "conversion_failure_count": 0,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 0,
+      "internal_space_candidate_count": 0,
+      "pattern_counts": {
+        "BIZ_UNDERSCORE": 21336,
+        "OTHER_IDENTIFIER": 430
+      },
+      "pattern_samples": {
+        "BIZ_UNDERSCORE": [
+          "BIZ_00170",
+          "BIZ_00379",
+          "BIZ_00788",
+          "BIZ_00324",
+          "BIZ_00808"
+        ],
+        "OTHER_IDENTIFIER": [
+          "\\N"
+        ]
+      }
+    },
+    "top_area_lvl": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 0,
+      "distinct_raw_count": 2,
+      "distinct_trimmed_count": 2,
+      "distinct_candidate_count": 1,
+      "conversion_failure_count": 153,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 0,
+      "internal_space_candidate_count": 0,
+      "pattern_counts": {
+        "TOP_LEVEL": 21613,
+        "OTHER_LEVEL": 153
+      },
+      "pattern_samples": {
+        "TOP_LEVEL": [
+          "TOP_LEVEL"
+        ],
+        "OTHER_LEVEL": [
+          "\\N"
+        ]
+      }
+    },
+    "top_area_nm": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 0,
+      "distinct_raw_count": 21,
+      "distinct_trimmed_count": 21,
+      "distinct_candidate_count": 21,
+      "conversion_failure_count": 0,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 0,
+      "internal_space_candidate_count": 0,
+      "pattern_counts": {
+        "PLAIN": 21766
+      },
+      "pattern_samples": {
+        "PLAIN": [
+          "기획",
+          "인사",
+          "R&D",
+          "교육",
+          "생산"
+        ]
+      }
+    },
+    "top_area_no": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 0,
+      "distinct_raw_count": 1000,
+      "distinct_trimmed_count": 1000,
+      "distinct_candidate_count": 1000,
+      "conversion_failure_count": 0,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 0,
+      "internal_space_candidate_count": 0,
+      "pattern_counts": {
+        "BIZ_UNDERSCORE": 21766
+      },
+      "pattern_samples": {
+        "BIZ_UNDERSCORE": [
+          "BIZ_00170",
+          "BIZ_00379",
+          "BIZ_00788",
+          "BIZ_00324",
+          "BIZ_00808"
+        ]
+      }
+    },
+    "top_area_reg_dtm": {
+      "row_count": 21766,
+      "null_or_sentinel_count": 0,
+      "distinct_raw_count": 1001,
+      "distinct_trimmed_count": 1001,
+      "distinct_candidate_count": 1000,
+      "conversion_failure_count": 143,
+      "leading_or_trailing_space_count": 0,
+      "tab_count": 0,
+      "fullwidth_space_count": 21623,
+      "internal_space_candidate_count": 21623,
+      "pattern_counts": {
+        "SPACE": 21623,
+        "INVALID_OR_OTHER": 143
+      },
+      "pattern_samples": {
+        "SPACE": [
+          "2019-11-04 00:52:02",
+          "2021-11-28 04:43:22",
+          "2018-01-18 06:20:01",
+          "2016-02-17 18:09:38",
+          "2017-06-24 09:33:51"
+        ],
+        "INVALID_OR_OTHER": [
+          "\\N"
+        ]
+      }
+    }
+  },
+  "key_profiles": {
+    "mgr_no": {
+      "distinct_count": 2999,
+      "null_or_invalid_count": 0,
+      "repeated_key_groups": 2977,
+      "duplicate_extra_rows": 18767,
+      "maximum_rows_per_key": 109
+    },
+    "p_area_no": {
+      "distinct_count": 1001,
+      "null_or_invalid_count": 0,
+      "repeated_key_groups": 1001,
+      "duplicate_extra_rows": 20765,
+      "maximum_rows_per_key": 430
+    },
+    "top_area_no": {
+      "distinct_count": 1000,
+      "null_or_invalid_count": 0,
+      "repeated_key_groups": 1000,
+      "duplicate_extra_rows": 20766,
+      "maximum_rows_per_key": 37
+    },
+    "area_no": {
+      "distinct_count": 21525,
+      "null_or_invalid_count": 0,
+      "repeated_key_groups": 241,
+      "duplicate_extra_rows": 241,
+      "maximum_rows_per_key": 2
+    }
+  },
+  "dependency_profiles": {
+    "employee": {
+      "mgr_nm": {
+        "conflicting_key_groups": 105,
+        "invalid_value_groups": 0,
+        "missing_value_rows": 253,
+        "conflict_samples": [
+          {
+            "key": "EMP001607",
+            "values": [
+              "\\N",
+              "박예준"
+            ]
+          },
+          {
+            "key": "EMP000798",
+            "values": [
+              "\\N",
+              "조민서"
+            ]
+          },
+          {
+            "key": "EMP001745",
+            "values": [
+              "\\N",
+              "최예은"
+            ]
+          },
+          {
+            "key": "EMP000362",
+            "values": [
+              "\\N",
+              "박주원"
+            ]
+          },
+          {
+            "key": "EMP002317",
+            "values": [
+              "\\N",
+              "김예은"
+            ]
+          }
+        ]
+      },
+      "mgr_act_yn": {
+        "conflicting_key_groups": 0,
+        "invalid_value_groups": 2999,
+        "missing_value_rows": 21766,
+        "conflict_samples": []
+      },
+      "mgr_pos_nm": {
+        "conflicting_key_groups": 249,
+        "invalid_value_groups": 0,
+        "missing_value_rows": 105,
+        "conflict_samples": [
+          {
+            "key": "EMP001752",
+            "values": [
+              "기타",
+              "차장"
+            ]
+          },
+          {
+            "key": "EMP002127",
+            "values": [
+              "기타",
+              "부장"
+            ]
+          },
+          {
+            "key": "EMP000267",
+            "values": [
+              "기타",
+              "차장"
+            ]
+          },
+          {
+            "key": "EMP002342",
+            "values": [
+              "기타",
+              "대리"
+            ]
+          },
+          {
+            "key": "EMP000522",
+            "values": [
+              "과장",
+              "기타"
+            ]
+          }
+        ]
+      },
+      "mgr_hire_dtm": {
+        "conflicting_key_groups": 1,
+        "invalid_value_groups": 246,
+        "missing_value_rows": 250,
+        "conflict_samples": [
+          {
+            "key": "\\N",
+            "values": [
+              "2008-06-01T18:16:00",
+              "2008-08-13T20:18:22",
+              "2008-09-08T10:37:05",
+              "2008-09-15T06:45:41",
+              "2008-10-22T19:37:48",
+              "2009-01-11T10:34:50",
+              "2009-03-13T02:41:16",
+              "2009-04-15T00:57:43",
+              "2009-05-29T08:06:26",
+              "2009-07-19T01:47:31"
+            ]
+          }
+        ]
+      },
+      "mgr_dept_nm": {
+        "conflicting_key_groups": 366,
+        "invalid_value_groups": 0,
+        "missing_value_rows": 0,
+        "conflict_samples": [
+          {
+            "key": "EMP001921",
+            "values": [
+              "교육운영팀",
+              "기타팀"
+            ]
+          },
+          {
+            "key": "EMP000306",
+            "values": [
+              "기타팀",
+              "데이터팀"
+            ]
+          },
+          {
+            "key": "EMP000416",
+            "values": [
+              "기타팀",
+              "품질관리팀"
+            ]
+          },
+          {
+            "key": "EMP001566",
+            "values": [
+              "기타팀",
+              "전략기획팀"
+            ]
+          },
+          {
+            "key": "EMP002641",
+            "values": [
+              "기타팀",
+              "기획팀"
+            ]
+          }
+        ]
+      }
+    },
+    "parent_organization": {
+      "p_area_nm": {
+        "conflicting_key_groups": 416,
+        "invalid_value_groups": 0,
+        "missing_value_rows": 126,
+        "conflict_samples": [
+          {
+            "key": "BIZ_00753",
+            "values": [
+              "\\N",
+              "재무"
+            ]
+          },
+          {
+            "key": "BIZ_00706",
+            "values": [
+              "IT",
+              "\\N"
+            ]
+          },
+          {
+            "key": "BIZ_00274",
+            "values": [
+              "\\N",
+              "생산"
+            ]
+          },
+          {
+            "key": "BIZ_00282",
+            "values": [
+              "\\N",
+              "분석"
+            ]
+          },
+          {
+            "key": "BIZ_00564",
+            "values": [
+              "\\N",
+              "시설"
+            ]
+          }
+        ]
+      },
+      "top_area_no": {
+        "conflicting_key_groups": 1,
+        "invalid_value_groups": 0,
+        "missing_value_rows": 0,
+        "conflict_samples": [
+          {
+            "key": "\\N",
+            "values": [
+              "BIZ_00003",
+              "BIZ_00004",
+              "BIZ_00010",
+              "BIZ_00013",
+              "BIZ_00015",
+              "BIZ_00018",
+              "BIZ_00021",
+              "BIZ_00023",
+              "BIZ_00028",
+              "BIZ_00034"
+            ]
+          }
+        ]
+      },
+      "top_area_nm": {
+        "conflicting_key_groups": 132,
+        "invalid_value_groups": 0,
+        "missing_value_rows": 0,
+        "conflict_samples": [
+          {
+            "key": "BIZ_00402",
+            "values": [
+              "오류지역",
+              "인사"
+            ]
+          },
+          {
+            "key": "\\N",
+            "values": [
+              "IT",
+              "R&D",
+              "고객서비스",
+              "교육",
+              "구매",
+              "기획",
+              "데이터",
+              "마케팅",
+              "물류",
+              "법무"
+            ]
+          },
+          {
+            "key": "BIZ_00759",
+            "values": [
+              "마케팅",
+              "오류지역"
+            ]
+          },
+          {
+            "key": "BIZ_00777",
+            "values": [
+              "시설",
+              "오류지역"
+            ]
+          },
+          {
+            "key": "BIZ_00579",
+            "values": [
+              "오류지역",
+              "전략"
+            ]
+          }
+        ]
+      },
+      "top_area_reg_dtm": {
+        "conflicting_key_groups": 1,
+        "invalid_value_groups": 142,
+        "missing_value_rows": 143,
+        "conflict_samples": [
+          {
+            "key": "\\N",
+            "values": [
+              "2016-01-08T04:17:53",
+              "2016-01-09T12:32:24",
+              "2016-01-20T13:04:35",
+              "2016-01-31T15:17:38",
+              "2016-02-02T10:08:50",
+              "2016-02-17T16:07:49",
+              "2016-02-19T17:16:38",
+              "2016-02-23T09:36:37",
+              "2016-02-26T09:00:36",
+              "2016-03-08T21:30:29"
+            ]
+          }
+        ]
+      },
+      "top_area_lvl": {
+        "conflicting_key_groups": 0,
+        "invalid_value_groups": 152,
+        "missing_value_rows": 153,
+        "conflict_samples": []
+      }
+    },
+    "area_record": {
+      "area_nm": {
+        "conflicting_key_groups": 58,
+        "invalid_value_groups": 0,
+        "missing_value_rows": 0,
+        "conflict_samples": [
+          {
+            "key": "BIZ_07200",
+            "values": [
+              "\\N",
+              "기획팀"
+            ]
+          },
+          {
+            "key": "BIZ_26200",
+            "values": [
+              "\\N",
+              "인사서비스"
+            ]
+          },
+          {
+            "key": "BIZ_41800",
+            "values": [
+              "\\N",
+              "영업팀"
+            ]
+          },
+          {
+            "key": "BIZ_13800",
+            "values": [
+              "\\N",
+              "구매플랫폼"
+            ]
+          },
+          {
+            "key": "BIZ_10600",
+            "values": [
+              "\\N",
+              "법무프로세스"
+            ]
+          }
+        ]
+      },
+      "area_reg_dtm": {
+        "conflicting_key_groups": 0,
+        "invalid_value_groups": 116,
+        "missing_value_rows": 116,
+        "conflict_samples": []
+      }
+    }
+  },
+  "conditional_completeness": {
+    "mgr_no": {
+      "key_present_rows": 21766,
+      "dependent_missing_counts": {
+        "mgr_act_yn": 21766,
+        "mgr_pos_nm": 105,
+        "mgr_hire_dtm": 250,
+        "mgr_nm": 253
+      }
+    },
+    "p_area_no": {
+      "key_present_rows": 21766,
+      "dependent_missing_counts": {
+        "p_area_nm": 126
+      }
+    },
+    "top_area_no": {
+      "key_present_rows": 21766,
+      "dependent_missing_counts": {
+        "top_area_lvl": 153,
+        "top_area_reg_dtm": 143
+      }
+    },
+    "area_no": {
+      "key_present_rows": 21766,
+      "dependent_missing_counts": {
+        "area_reg_dtm": 116
+      }
+    }
+  },
+  "checks": {
+    "payload_key_sets_equal": true,
+    "expected_columns_present": true,
+    "official_baseline_available": true,
+    "business_key_confirmed": false
+  },
+  "warnings": [
+    "입력 파일이 csv 포맷으로 감지되었습니다.",
+    "가이드의 16개 고유 필드명은 실제 헤더로 검증되지 않음",
+    "이름 내부 공백은 제거하지 않고 이상 패턴으로 집계함",
+    "변환 실패 값은 별도 건수로 기록함",
+    "area_no는 업무키로 확정하지 않음"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/hr-silver/v1/source-record.schema.json",
+  "title": "HR Silver source record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_id", "payload", "release_slot", "scheduled_release_at",
+    "source_record_sha256", "source_row_no"
+  ],
+  "properties": {
+    "record_id": {"type": "integer"},
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "area_no", "area_nm", "p_area_no", "p_area_nm", "top_area_no",
+        "top_area_nm", "top_area_lvl", "mgr_no", "mgr_nm", "mgr_dept_nm",
+        "mgr_pos_nm", "mgr_hire_dtm", "mgr_act_yn", "area_reg_dtm", "top_area_reg_dtm"
+      ],
+      "properties": {
+        "area_no": {"type": ["string", "null"]},
+        "area_nm": {"type": ["string", "null"]},
+        "p_area_no": {"type": ["string", "null"]},
+        "p_area_nm": {"type": ["string", "null"]},
+        "top_area_no": {"type": ["string", "null"]},
+        "top_area_nm": {"type": ["string", "null"]},
+        "top_area_lvl": {"type": ["string", "null"]},
+        "mgr_no": {"type": ["string", "null"]},
+        "mgr_nm": {"type": ["string", "null"]},
+        "mgr_dept_nm": {"type": ["string", "null"]},
+        "mgr_pos_nm": {"type": ["string", "null"]},
+        "mgr_hire_dtm": {"type": ["string", "null"]},
+        "mgr_act_yn": {"type": ["string", "null", "integer", "boolean"]},
+        "area_reg_dtm": {"type": ["string", "null"]},
+        "top_area_reg_dtm": {"type": ["string", "null"]}
+      }
+    },
+    "release_slot": {"type": "integer", "minimum": 0},
+    "scheduled_release_at": {"type": "string", "format": "date-time"},
+    "source_record_sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+    "source_row_no": {"type": "integer", "minimum": 1}
+  }
+}

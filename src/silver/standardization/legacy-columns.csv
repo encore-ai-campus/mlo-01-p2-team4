@@ -1,0 +1,16 @@
+source_system,legacy_column,sample_value,legacy_description,issue
+atlas_records_legacy,area_no,BIZ-31536,records.json payload의 조직 또는 업무 영역 식별자,대소문자·밑줄·하이픈·공백 형식이 혼재함; 공식 CSV 4종과 미대조
+atlas_records_legacy,area_nm,전략플랫폼 49,records.json payload의 조직 또는 업무 영역 이름,앞뒤·탭·전각·내부 공백과 NULL 표현이 존재함; 공식 기준명 미확정
+atlas_records_legacy,p_area_no,BIZ_00379,records.json payload의 상위 조직 식별자,구분자 형식과 결측 표현이 혼재함; 공식 PARENT_AREA_ID와 미대조
+atlas_records_legacy,p_area_nm,인사,records.json payload의 상위 조직 이름,공백과 결측 표현이 혼재함; 공식 상위 영역명 미확정
+atlas_records_legacy,top_area_no,BIZ_00379,records.json payload의 최상위 조직 식별자,구분자 형식과 공백이 혼재함; 공식 최상위 영역 ID와 미대조
+atlas_records_legacy,top_area_nm,인사,records.json payload의 최상위 조직 이름,앞뒤·탭·전각·내부 공백이 혼재함; 공식 기준명 미확정
+atlas_records_legacy,top_area_lvl,TOP_LEVEL,records.json payload의 최상위 조직 단계 코드,TOP_LEVEL·L1·최상위·TOP LEVEL·1이 혼재함; 공식 코드 기준 미확정
+atlas_records_legacy,mgr_no,EMP001103,records.json payload의 조직 관리자 식별자 후보,대소문자·하이픈·공백과 UNKNOWN이 혼재함; 공식 MANAGER_EMP_NO와 미대조
+atlas_records_legacy,mgr_nm,김수아,records.json payload의 관리자 이름 후보,결측·오류값·앞뒤·탭·전각·내부 공백이 존재함; 공식 EMP_NAME과 미대조
+atlas_records_legacy,mgr_dept_nm,생산팀,records.json payload의 관리자 소속 부서명 후보,공백·결측이 존재하며 직원 마스터 기준 소속 여부 미확정
+atlas_records_legacy,mgr_pos_nm,과장,records.json payload의 관리자 직위 또는 직책명 후보,직위와 직책의 구분이 미확정되고 내부 공백이 존재함
+atlas_records_legacy,mgr_hire_dtm,2026/05/12 09:58:06,records.json payload의 관리자 입사 일시 후보,여러 날짜 형식과 무효 일시가 혼재함; 공식 EMP_DATE와 미대조
+atlas_records_legacy,mgr_act_yn,재직,records.json payload의 관리자 활성 또는 재직 상태 후보,Y·YES·1·사용·재직과 N·NO·0·미사용·퇴직이 혼재함
+atlas_records_legacy,area_reg_dtm,2017-07-06 05:51:27,records.json payload의 조직 등록 일시 후보,여러 날짜 형식과 무효 일시가 혼재함; 공식 등록일 기준 미확정
+atlas_records_legacy,top_area_reg_dtm,2021/11/28 04:43:22,records.json payload의 최상위 조직 등록 일시 후보,여러 날짜 형식과 무효 일시가 혼재함; 공식 parent lookup 기준 미확정

@@ -1,0 +1,16 @@
+term_id,logical_term,physical_name,word_ids,definition,domain_id,nullable,source_columns
+AREA_ID,업무영역ID,area_id,AREA|ID,20개 표준 업무 영역 중 하나를 식별하는 값,IDENTIFIER_20,N,area_no
+AREA_NAME,업무영역명,area_name,AREA|NAME,20개 기준으로 통합된 표준 업무 영역 이름,NAME_100,N,area_nm
+PARENT_AREA_ID,상위업무영역ID,parent_area_id,PARENT|AREA|ID,현재 업무 영역의 상위 영역을 식별하는 값,IDENTIFIER_20,Y,p_area_no
+PARENT_AREA_NAME,상위업무영역명,parent_area_name,PARENT|AREA|NAME,현재 업무 영역의 상위 영역 이름,NAME_100,Y,p_area_nm
+TOP_AREA_ID,최상위업무영역ID,top_area_id,TOP|AREA|ID,현재 업무 영역이 속한 최상위 영역을 식별하는 값,IDENTIFIER_20,N,top_area_no
+TOP_AREA_NAME,최상위업무영역명,top_area_name,TOP|AREA|NAME,현재 업무 영역이 속한 최상위 영역 이름,NAME_100,N,top_area_nm
+TOP_AREA_LEVEL_CODE,최상위업무영역단계코드,top_area_level_code,TOP|AREA|LEVEL|CODE,최상위 업무 영역의 계층 단계를 나타내는 코드,LEVEL_CODE_20,N,top_area_lvl
+EMPLOYEE_ID,직원ID,employee_id,EMPLOYEE|ID,현재 레코드에서 관리자 역할로 연결된 직원을 식별하는 값,IDENTIFIER_20,N,mgr_no
+EMPLOYEE_NAME,직원명,employee_name,EMPLOYEE|NAME,현재 레코드에서 관리자 역할로 연결된 직원 이름,NAME_100,N,mgr_nm
+EMPLOYEE_DEPARTMENT_NAME,직원부서명,employee_department_name,EMPLOYEE|DEPARTMENT|NAME,직원이 소속된 부서의 이름,NAME_100,N,mgr_dept_nm
+EMPLOYEE_POSITION_NAME,직원직위명,employee_position_name,EMPLOYEE|POSITION|NAME,직원에게 부여된 직위의 이름,NAME_100,N,mgr_pos_nm
+EMPLOYEE_HIRE_DATETIME,직원입사일시,employee_hire_datetime,EMPLOYEE|HIRE|DATETIME,직원이 고용 관계를 시작한 일시,DATETIME_ISO,N,mgr_hire_dtm
+EMPLOYEE_STATUS_CODE,직원상태코드,employee_status_code,EMPLOYEE|STATUS|CODE,직원의 활성 또는 비활성 상태를 나타내는 표준 코드,STATUS_CODE_20,N,mgr_act_yn
+AREA_REGISTRATION_DATE,업무영역등록일,area_registration_date,AREA|REGISTRATION|DATE,업무 영역이 등록된 일시,DATETIME_ISO,N,area_reg_dtm
+TOP_AREA_REGISTRATION_DATE,최상위업무영역등록일,top_area_registration_date,TOP|AREA|REGISTRATION|DATE,최상위 업무 영역이 등록된 일시,DATETIME_ISO,N,top_area_reg_dtm

@@ -1,0 +1,52 @@
+{
+  "context": {
+    "pipeline_run_id": "run-20260827-0001",
+    "batch_id": "batch-000001",
+    "batch_sequence": 1,
+    "dataset_id": "hr-organization",
+    "snapshot_id": "snapshot-20260827",
+    "contract_id": "hr-silver",
+    "contract_version": "1",
+    "ruleset_version": "1",
+    "cursor_in": null,
+    "cursor_out_candidate": "cursor-000002",
+    "requested_batch_size": 1000,
+    "actual_input_count": 1
+  },
+  "accepted": [
+    {
+      "lineage": {
+        "record_id": 153754,
+        "source_row_no": 4,
+        "source_record_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "release_slot": 0,
+        "scheduled_release_at": "2026-08-27T09:00:00+09:00"
+      },
+      "business": {
+        "area_id": "BIZ_00017",
+        "area_name": "전략",
+        "parent_area_id": null,
+        "parent_area_name": null,
+        "top_area_id": "BIZ_00017",
+        "top_area_name": "전략",
+        "top_area_level_code": "TOP_LEVEL",
+        "employee_id": "EMP002583",
+        "employee_name": "박주원",
+        "employee_department_name": "전략팀",
+        "employee_position_name": "실장",
+        "employee_hire_datetime": "2013-02-18T00:00:00",
+        "employee_status_code": "ACTIVE",
+        "area_registration_date": "2017-04-26T00:00:00",
+        "top_area_registration_date": "2016-02-17T00:00:00"
+      },
+      "record_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "rejected": [],
+  "metrics": {
+    "input_count": 1,
+    "accepted_count": 1,
+    "rejected_count": 0,
+    "excluded_count": 0
+  }
+}
