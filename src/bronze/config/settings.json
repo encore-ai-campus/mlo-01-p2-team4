@@ -1,0 +1,7 @@
+{
+  "base_url": "http://192.168.0.51:8000",
+  "records_limit": 1000,
+  "records_path": "src/bronze/data/records.json",
+  "source_name": "internal-api",
+  "crawler_version": "bronze-v1"
+}

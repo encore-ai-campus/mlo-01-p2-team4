@@ -1,1 +1,1 @@
-"""Silver 계층의 계약과 순수 모델링 로직을 제공한다."""
+"""Atlas 원본을 cleaned flat CSV로 만드는 최소 Silver 계층."""

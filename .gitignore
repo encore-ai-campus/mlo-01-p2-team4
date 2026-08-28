@@ -23,6 +23,9 @@ env/
 ENV/
 .env
 
+# temp
+temp/
+
 # Jupyter 자동 생성 파일
 .ipynb_checkpoints/
 *.nbconvert.ipynb
@@ -41,3 +44,13 @@ dist/
 
 # 로그
 *.log
+/output/logs/
+
+# src/bronze legacy API collector 및 snapshot 산출물
+src/bronze/data/records.json
+src/bronze/data/atlas_records.json
+src/bronze/data/bronze/
+src/bronze/data/manifests/*.json
+src/bronze/data/quarantine/
+src/bronze/state/*.json
+src/bronze/logs/

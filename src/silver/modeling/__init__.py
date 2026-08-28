@@ -1,20 +1,40 @@
-"""Phase 4 출력을 검증하고 Silver 모델 후보로 투영한다."""
+"""누적 표준 Flat을 네 개 Silver 모델 snapshot으로 투영한다."""
 
-from .phase4_binding import (
-    Phase4ContractViolation,
-    Phase4IntegrationBinding,
-    Phase4IntegrationUnavailable,
-    unavailable_phase4_binding,
+from .contracts import (
+    AREA_MODEL_CONFLICT,
+    EMPLOYEE_MODEL_CONFLICT,
+    FLAT_INPUT_FIELDS,
+    JOIN_REFERENCE_MODEL_CONFLICT,
+    MODEL_KEY_MISSING,
+    MODEL_SPECS,
+    NORMALIZATION_REJECT_FIELDS,
+    NORMALIZATION_REJECT_STAGE,
+    PARENT_AREA_MODEL_CONFLICT,
+    STANDARDIZED_FIELDS,
+    ModelSpec,
+    NormalizationContractError,
+    NormalizationProjection,
+    NormalizationReject,
 )
-from .processor import Phase5Processor
-from .projections import Phase5ProjectionResult, ProjectionCandidate
+from .materializer import NormalizationRunSummary, materialize_normalized_outputs
+from .projections import build_normalization_projection
 
 __all__ = [
-    "Phase4ContractViolation",
-    "Phase4IntegrationBinding",
-    "Phase4IntegrationUnavailable",
-    "Phase5Processor",
-    "Phase5ProjectionResult",
-    "ProjectionCandidate",
-    "unavailable_phase4_binding",
+    "AREA_MODEL_CONFLICT",
+    "EMPLOYEE_MODEL_CONFLICT",
+    "FLAT_INPUT_FIELDS",
+    "JOIN_REFERENCE_MODEL_CONFLICT",
+    "MODEL_KEY_MISSING",
+    "MODEL_SPECS",
+    "NORMALIZATION_REJECT_FIELDS",
+    "NORMALIZATION_REJECT_STAGE",
+    "PARENT_AREA_MODEL_CONFLICT",
+    "STANDARDIZED_FIELDS",
+    "ModelSpec",
+    "NormalizationContractError",
+    "NormalizationProjection",
+    "NormalizationReject",
+    "NormalizationRunSummary",
+    "build_normalization_projection",
+    "materialize_normalized_outputs",
 ]
