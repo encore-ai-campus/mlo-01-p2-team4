@@ -1,0 +1,1 @@
+"""HR organization standardization pipeline."""

@@ -1,0 +1,31 @@
+version: 1
+unknown_action: reject
+
+status:
+  decision_id: SDEC-005
+  allowed_values:
+    - ACTIVE
+    - INACTIVE
+  source_values:
+    "1": ACTIVE
+    "0": INACTIVE
+    Y: ACTIVE
+    N: INACTIVE
+    YES: ACTIVE
+    NO: INACTIVE
+    사용: ACTIVE
+    미사용: INACTIVE
+    재직: ACTIVE
+    퇴직: INACTIVE
+
+level:
+  decision_id: SDEC-006
+  allowed_values:
+    - TOP_LEVEL
+  source_values:
+    "1": TOP_LEVEL
+    L1: TOP_LEVEL
+    TOP_LEVEL: TOP_LEVEL
+    TOP LEVEL: TOP_LEVEL
+    top_level: TOP_LEVEL
+    최상위: TOP_LEVEL

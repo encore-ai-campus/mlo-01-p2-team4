@@ -1,0 +1,70 @@
+version: 1
+
+domains:
+  - domain_id: IDENTIFIER_20
+    description: 영문자로 시작하는 20자 이내 표준 식별자
+    logical_type: identifier
+    python_type: str
+    database_type: VARCHAR
+    length: 20
+    nullable: true
+    format: '^[A-Z][A-Z0-9_]{0,19}$'
+    allowed_values: []
+    examples:
+      - BIZ_00001
+      - EMP001103
+
+  - domain_id: NAME_100
+    description: 앞뒤 공백을 제거한 1자 이상 100자 이하 이름
+    logical_type: name
+    python_type: str
+    database_type: VARCHAR
+    length: 100
+    nullable: true
+    format: '^.{1,100}$'
+    allowed_values: []
+    examples:
+      - 고객서비스
+      - 김수아
+      - 생산팀
+      - 과장
+
+  - domain_id: LEVEL_CODE_20
+    description: 업무 영역 계층 단계를 나타내는 20자 이내 표준 코드
+    logical_type: code
+    python_type: str
+    database_type: VARCHAR
+    length: 20
+    nullable: true
+    format: '^[A-Z][A-Z0-9_]{0,19}$'
+    allowed_values:
+      - TOP_LEVEL
+    examples:
+      - TOP_LEVEL
+
+  - domain_id: DATETIME_ISO
+    description: 초 단위까지 표현한 ISO 8601 표준 일시
+    logical_type: datetime
+    python_type: datetime
+    database_type: DATETIME
+    nullable: true
+    format: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+    allowed_values: []
+    examples:
+      - '2020-01-01T14:20:58'
+      - '2026-08-25T11:01:58'
+
+  - domain_id: STATUS_CODE_20
+    description: 직원의 활성 또는 비활성 상태를 나타내는 20자 이내 표준 코드
+    logical_type: code
+    python_type: str
+    database_type: VARCHAR
+    length: 20
+    nullable: true
+    format: '^[A-Z][A-Z0-9_]{0,19}$'
+    allowed_values:
+      - ACTIVE
+      - INACTIVE
+    examples:
+      - ACTIVE
+      - INACTIVE

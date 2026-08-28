@@ -1,0 +1,16 @@
+legacy_column,standard_column,logical_term,conversion_rule,domain_id,required
+area_no,area_id,업무영역ID,derive_from_area_name,IDENTIFIER_20,Y
+area_nm,area_name,업무영역명,canonicalize_area_name,NAME_100,Y
+p_area_no,parent_area_id,상위업무영역ID,derive_from_area_name,IDENTIFIER_20,N
+p_area_nm,parent_area_name,상위업무영역명,canonicalize_area_name,NAME_100,N
+top_area_no,top_area_id,최상위업무영역ID,derive_from_area_name,IDENTIFIER_20,Y
+top_area_nm,top_area_name,최상위업무영역명,canonicalize_area_name,NAME_100,Y
+top_area_lvl,top_area_level_code,최상위업무영역단계코드,map_top_level,LEVEL_CODE_20,Y
+mgr_no,employee_id,직원ID,normalize_identifier,IDENTIFIER_20,Y
+mgr_nm,employee_name,직원명,normalize_name,NAME_100,Y
+mgr_dept_nm,employee_department_name,직원부서명,normalize_name,NAME_100,Y
+mgr_pos_nm,employee_position_name,직원직위명,normalize_name,NAME_100,Y
+mgr_hire_dtm,employee_hire_datetime,직원입사일시,parse_to_iso_datetime,DATETIME_ISO,Y
+mgr_act_yn,employee_status_code,직원상태코드,map_active_flag,STATUS_CODE_20,Y
+area_reg_dtm,area_registration_date,업무영역등록일,parse_to_iso_datetime,DATETIME_ISO,Y
+top_area_reg_dtm,top_area_registration_date,최상위업무영역등록일,parse_to_iso_datetime,DATETIME_ISO,Y
