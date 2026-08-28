@@ -95,10 +95,11 @@
 | BRONZE | Bronze 데이터 수집 ･ 적제 ･ Django Atlas 구현, Silver 데이터 다운로드 로직 구현 |
 | GOLD | Djnago 기능 구현 |
 | `김남동` |  |
-|  |  |
+|  | PRD, DRD 작성 |
+| SILVER | 데이터 역공학 ･ 정규화 ･ 통합 파트 구현, MySQL 적재 |
 | `이형인` |  |
-|  |  |
-|  |  |
+|  | BRD 작성, 서비스 기획 |
+| SILVER | 표준화 |
 
 ## 7. ERD
 
