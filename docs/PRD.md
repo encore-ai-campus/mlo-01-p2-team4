@@ -6,8 +6,8 @@
 |---|---|---|
 | 원천 구조·코드·명칭이 달라 재사용이 어렵다. | Bronze 원본 보존 후 Silver 계약으로 식별자·명칭·상태·조직 관계를 표준화한다. | Accepted 행의 대상 필드 매핑 완전성 100%, 핵심 품질 오류 0건 |
 | 증분 수집 중 저장 실패 뒤 cursor가 이동하면 행을 잃을 수 있다. | 원천 JSON 저장 성공 후에만 `next_cursor`를 확정하고, 실패 시 마지막 성공 cursor를 유지한다. | 저장 전 cursor 갱신 0건, 재시작 시 마지막 성공 cursor부터 재개 |
-| 오류 행이 정상 데이터에 섞여 원천과 사유를 다시 확인하기 어렵다. | 행별 Reject에 원천 JSON·lineage·모든 위반 사유를 보존한다. | `input = accepted + rejected + excluded`, `excluded = 0` |
-| 조직·직원 모델을 배치별로 다르게 만들면 조회 결과가 달라질 수 있다. | Phase4Output을 Phase5Processor에 직접 전달하고, 결정적 fingerprint·중복 제거·교차 검증을 적용한다. | 입력 순서·배치 크기 변경 후 동일 결과, first/last wins 0건 |
+| 오류 행이 정상 데이터에 섞여 원천과 사유를 다시 확인하기 어렵다. | Flat Reject에는 원천 JSON과 사유를, 정규화 Reject에는 표준화 JSON과 모델 충돌 사유를 보존한다. | Flat·정규화 source accounting 일치 |
+| 조직·직원 모델을 배치별로 다르게 만들면 조회 결과가 달라질 수 있다. | 누적 `accept.csv` 전체에서 충돌 source를 제외하고 네 모델 snapshot을 결정적으로 재생성한다. | 같은 누적 Flat의 모델 출력 동일, first/last wins 0건 |
 | 연차 규정·부여 주기가 달라 수동 계산과 중복 확인이 발생한다. | 담당자가 규정을 직접 선택하고, 선택 규정만 계산·확인·저장하며 중복 key를 검사한다. | 계산 불일치 0건, 동일 규정·동일 적용 기간 중복 부여 0건 |
 
 ## 2. 목표와 KPI
@@ -69,8 +69,9 @@
 ```text
 API key 조회 → meta·cursor 확인 → 최초/증분 records 요청(≤1,000건)
 → 원천 JSON 원자 저장 → cursor 확정 → Bronze batch
-→ S1~S4 표준화·Reject → Phase4Output
-→ S5~S8 모델 투영·검증 → 통합 적재·checkpoint
+→ Flat 표준화 → accept.csv 또는 reject.csv
+→ 누적 accept.csv 전체 투영 → normalization_reject.csv + 네 모델 snapshot
+→ source accounting 확인 → processed_ids checkpoint
 → Gold 규정 fixture → 담당자 규정 선택·계산·중복 확인·이력 저장
 ```
 
@@ -86,9 +87,9 @@ API key 조회 → meta·cursor 확인 → 최초/증분 records 요청(≤1,000
 | Phase | 담당 | 시작 조건 | 종료 게이트 |
 |---|---|---|---|
 | P1 Bronze | 안길찬 | API 계약·설정 확인 | 원천 보존율 100%, cursor 복구 시험 통과 |
-| P2 Silver S1~S4 | 이형인 | Bronze batch·ReferenceSnapshot | 복원율 ≥90%, Reject ≤10%, 행 accounting 통과 |
-| P3 Silver S5~S8 | 김남동 | 유효한 Phase4Output | 네 모델·결정성·교차 검증 통과 |
-| P4 통합·적재 | 이형인·김남동·안길찬 | P2·P3 계약 lock | idempotency·transaction·checkpoint·fencing 통과 |
+| P2 Silver S1~S4 | 이형인 | Bronze batch·v1 표준 규칙 | Flat accept/reject 게시와 행 accounting 통과 |
+| P3 Silver S5~S8 | 김남동 | 누적 `accept.csv` | 정규화 Reject·네 모델·결정성·교차 검증 통과 |
+| P4 통합·적재 | 이형인·김남동·안길찬 | P2·P3 파일 게시 성공 | idempotency·rollback·checkpoint recovery 통과 |
 | P5 Gold·Service | 안길찬 | 승인 Gold fixture·규정 | 계산·저장·중복 KPI 통과 |
 
 ### 5.2 P1 Bronze Collection
@@ -108,30 +109,31 @@ API key 조회 → meta·cursor 확인 → 최초/증분 records 요청(≤1,000
 
 | Step | 실행할 일 | 산출물 | 수용 기준 |
 |---|---|---|---|
-| S1 | v1 계약·매핑·규칙·fixture·checksum을 lock하고 입력 context/snapshot을 검증 | Phase4Request | contract/dataset/snapshot 불일치는 batch 실패 |
-| S2 | wrapper·payload·raw JSON·observed lineage를 검증 | RejectedRecord | 구조 오류 행은 raw JSON·모든 위반 사유와 함께 Reject |
-| S3 | null, ID, 조직명, 상태, 수준, 일시, 계층 규칙을 표준화 | StandardizedBusinessRecord | `EMP######`, `BIZ_#####`, 승인 mapping 외 값의 임의 보정 0건 |
-| S4 | batch conflict, fingerprint, metrics, output schema를 검증 | Phase4Output | `input = accepted + rejected + excluded`, `excluded = 0`, 복원율·Reject 비율 KPI 통과 |
+| S1 | wrapper·payload·raw JSON·observed lineage를 검증 | RejectedRecord | 구조 오류 행은 raw JSON·모든 위반 사유와 함께 Reject |
+| S2 | null, ID, 조직명, 상태, 수준, 일시, 계층 규칙을 표준화 | StandardizedBusinessRecord | `EMP######`, `BIZ_#####`, 승인 mapping 외 값의 임의 보정 0건 |
+| S3 | 전체 표준값 중복을 2차 Reject로 분리하고 Flat pair를 게시 | `accept.csv`, `reject.csv` | `input = accepted + rejected + replayed`, source 중복 0건 |
 
-`ReferenceSnapshot.complete=false`, context/version 불일치, snapshot 불일치는 batch를 중단한다. 행 단위 오류와 같은 canonical key 충돌은 관련 행 전체를 Reject한다.
+표준 규칙 파일이나 기존 Flat CSV 계약이 손상된 경우 실행을 중단한다. 행 단위 표준화 오류와 전체 표준값 중복은 `reject.csv`에 기록하고, 모델 key 충돌은 다음 정규화 단계에서 처리한다.
 
 ### 5.4 P3 Silver S5~S8: 모델 투영·검증
 
 | Step | 실행할 일 | 산출물 | 수용 기준 |
 |---|---|---|---|
-| S5 | `Phase4Output`을 `Phase5Processor`에 직접 전달하고 4개 모델에 투영 | Phase5Output | 중간 파일·DTO·재표준화 0건 |
-| S6 | 같은 key·같은 data만 병합하고 source ID·model fingerprint를 결정적으로 생성 | 중복 제거 모델 | 값이 다른 행의 first/last wins 0건 |
-| S7 | key uniqueness, 컬럼 순서, 모델 간 직원·조직·parent 정합성 검증 | validation 결과 | 일반 모델에 raw·lineage·source 컬럼 0개 |
-| S8 | accepted/rejected/duplicate/order-change/invalid-output/1,000행 fixture 실행 | 인수 결과 | 입력 순서·배치 크기 변경 후 결과 동일 |
+| S4 | 게시된 누적 `accept.csv` 전체를 네 모델 후보로 투영 | 모델 후보 | Atlas 원본 재조회·재표준화 0건 |
+| S5 | 같은 key·같은 data는 병합하고, 같은 key·다른 data의 관련 source 전체를 정규화 Reject로 분리 | `normalization_reject.csv` | first/last wins 0건, Reject source의 네 모델 포함 0건 |
+| S6 | key uniqueness, 컬럼 순서, 모델 간 직원·영역 정합성을 검증 | 네 모델 snapshot | 일반 모델에 raw·lineage·source 컬럼 0개 |
+| S7 | empty bootstrap, conflict, publication failure, replay를 검증 | 인수 결과 | 동일 누적 Flat에서 byte-stable 결과, source accounting 일치 |
+
+부분 증분 데이터에서 아직 들어오지 않은 `parent_area_id`와 `top_area_id` 참조는 건수만 보고하고 Reject 또는 실행 중단 사유로 사용하지 않는다.
 
 ### 5.5 P4 통합·적재
 
 | Step | 실행할 일 | 산출물 | 수용 기준 |
 |---|---|---|---|
-| I1 | execution lock·fencing, checkpoint, batch idempotency, ReferenceSnapshot을 확인 | 실행 context | stale token commit·중복 batch commit 0건 |
-| I2 | Phase4 → Phase5 → CanonicalReconciler → CommitBundle → SilverSink → checkpoint를 실행 | commit receipt | model·Reject·ledger·checkpoint 후보가 같은 transaction 경계에서 처리 |
-| I3 | batch 간 conflict reclassification, rollback, checkpoint recovery, audit를 검증 | audit·recovery 결과 | Bronze 원본 변경 0건, Silver disposition·ledger만 재분류 |
-| I4 | scheduler 활성화 전 batch-size invariance와 failure case를 검증 | scheduler gate | idempotency·rollback·checkpoint·fencing 실패 케이스 통과 전 scheduler 비활성 |
+| I1 | checkpoint가 있으면 기존 Flat pair의 존재를 확인 | 실행 context | checkpoint만 있고 Flat pair가 없는 상태는 실행 전 차단 |
+| I2 | Flat pair → 정규화 Reject·네 모델 → source accounting → checkpoint 순서로 실행 | Silver CSV·checkpoint | 정규화 게시 성공 전 checkpoint 갱신 0건 |
+| I3 | Flat 성공·정규화 실패와 정규화 성공·checkpoint 실패를 재실행 | recovery 결과 | Flat replay 중복 0건, 누적 accept 기반 모델 snapshot 복구 |
+| I4 | scheduler 활성화 전 empty bootstrap, idempotency, rollback, checkpoint failure를 검증 | scheduler gate | 실패 케이스 통과 전 scheduler 비활성 |
 
 ### 5.6 P5 Gold·Service
 
@@ -161,21 +163,22 @@ API key 조회 → meta·cursor 확인 → 최초/증분 records 요청(≤1,000
 ### 6.2 Silver 입력·출력 계약
 
 ```text
-SourceBatch + ReferenceSnapshot → Phase4Request → Phase4Output → Phase5Output
+Bronze batch → accept.csv 또는 reject.csv → 누적 accept.csv 정규화
+→ normalization_reject.csv + 네 모델 snapshot → processed_ids.json
 ```
 
-Phase4의 일반 업무 필드는 다음 15개다.
+Flat accept의 일반 업무 필드는 다음 15개다.
 
-`division_id`, `division_name`, `parent_division_id`, `parent_division_name`, `top_division_id`, `top_division_name`, `division_level_code`, `employee_id`, `employee_name`, `employee_department_name`, `employee_position_name`, `employee_hire_datetime`, `employee_status_code`, `division_registered_datetime`, `top_division_registered_datetime`
+`area_id`, `area_name`, `parent_area_id`, `parent_area_name`, `top_area_id`, `top_area_name`, `top_area_level_code`, `employee_id`, `employee_name`, `employee_department_name`, `employee_position_name`, `employee_hire_datetime`, `employee_status_code`, `area_registration_date`, `top_area_registration_date`
 
-| 모델 | 일반 업무 필드 |
-|---|---|
-| `silver_employee` | `employee_id`, `employee_name`, `employee_department_name`, `employee_position_name`, `employee_hire_datetime`, `employee_status_code` |
-| `silver_area` | `division_id`, `division_name`, `parent_division_id`, `employee_id`, `division_registered_datetime` |
-| `silver_parent_area` | `top_division_id`, `top_division_name`, `division_level_code`, `top_division_registered_datetime` |
-| `silver_area_join_reference` | `division_id`, `parent_division_id`, `parent_division_name`, `employee_id`, `employee_name`, `employee_department_name`, `employee_position_name`, `employee_hire_datetime`, `employee_status_code` |
+| 모델 | key | 일반 업무 필드 |
+|---|---|---|
+| `silver_employee` | `employee_id` | `employee_id`, `employee_name`, `employee_department_name`, `employee_position_name`, `employee_hire_datetime`, `employee_status_code` |
+| `silver_area` | `area_id` | `area_id`, `area_name`, `parent_area_id`, `employee_id`, `area_registration_date` |
+| `silver_parent_area` | `top_area_id` | `top_area_id`, `top_area_name`, `top_area_level_code`, `top_area_registration_date` |
+| `silver_area_join_reference` | (`area_id`, `employee_id`) | `area_id`, `parent_area_id`, `parent_area_name`, `employee_id`, `employee_name`, `employee_department_name`, `employee_position_name`, `employee_hire_datetime`, `employee_status_code` |
 
-Reject에는 `raw_json`, 가능한 lineage, `batch_record_index`, violation code/rule/field/detail을 보존한다. 일반 Silver 모델에는 raw JSON, 원천 행 번호, lineage, 처리 메타데이터를 넣지 않는다.
+Flat 단계의 `reject.csv`에는 `source_id`, `record_id`, `reject_stage`, `reason_codes`, `reason_details`, `raw_json`을 보존한다. Flat을 통과한 뒤 모델화에서 제외된 행은 같은 출력 디렉터리의 `normalization_reject.csv`에 `source_id`, `record_id`, `reject_stage`, `model_name`, `model_key`, `reason_code`, `reason_detail`, `standardized_json`으로 보존한다. 일반 Silver 모델에는 raw JSON, 원천 행 번호, lineage, 처리 메타데이터를 넣지 않는다.
 
 ### 6.3 연차 규정·중복·이력 계약
 
@@ -205,18 +208,18 @@ Reject에는 `raw_json`, 가능한 lineage, `batch_record_index`, violation code
 
 1. P1 Bronze 원천 보존율·cursor 복구를 검증한다.
 2. P2에서 복원율 ≥90%, Reject 비율 ≤10%, 행 accounting을 확인한다.
-3. P3·P4에서 모델 결정성, idempotency, rollback, checkpoint, fencing을 확인한다.
+3. P3·P4에서 모델 결정성, idempotency, rollback, checkpoint recovery를 확인한다.
 4. P5에서 Gold fixture 100%, 계산 불일치 0건, 중복 0건, 저장·조회 100%를 확인한다.
 
-각 Phase 표의 정량 수용 기준 중 하나라도 미달하면 다음 단계 또는 운영 scheduler 출시를 차단한다. 최소 차단 항목은 원천 보존율, cursor 저장 순서, 페이지 상한·1,800초 재시도, Silver 복원율·Reject 비율·15개 필드 매핑 완전성·행 accounting(`input = accepted + rejected + excluded`, `excluded = 0`), Gold fixture, 계산 불일치, 중복 부여, 저장·조회 성공률이다.
+각 Phase 표의 정량 수용 기준 중 하나라도 미달하면 다음 단계 또는 운영 scheduler 출시를 차단한다. 최소 차단 항목은 원천 보존율, cursor 저장 순서, 페이지 상한·1,800초 재시도, 15개 필드 매핑 완전성, Flat accounting(`input = accepted + rejected + replayed`), 정규화 source accounting(`Flat accepted source = normalization accepted source + normalization rejected source`), Gold fixture, 계산 불일치, 중복 부여, 저장·조회 성공률이다.
 
 ### 7.2 운영 측정 항목
 
 | 영역 | 반드시 기록할 값 |
 |---|---|
 | Bronze | 수신·저장 items 수, 보존율, cursor, retry, API 키 재조회, 저장 실패 |
-| Silver | input/accepted/rejected/excluded, 복원율, Reject 비율·사유 분포, fingerprint·conflict |
-| 통합 | idempotency hit, transaction 결과, checkpoint recovery, fencing 거부, audit receipt |
+| Silver | Flat input/accepted/rejected/replayed, 정규화 accepted/rejected source, 모델별 행 수, Reject 사유 분포, orphan 집계 |
+| 통합 | idempotency, 정규화 게시·rollback 결과, checkpoint recovery |
 | Gold·Service | 규정 fixture 일치율, 계산 불일치, 중복 차단, 저장·재조회 성공률 |
 
 ### 7.3 미결정

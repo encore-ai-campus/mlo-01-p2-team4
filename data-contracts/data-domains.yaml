@@ -1,0 +1,97 @@
+version: 1
+status: draft
+source_observation:
+  path: sample_data/sample_data.csv
+  declared_extension: csv
+  observed_delimiter: tab
+  header_field_count: 15
+  data_row_count: 20
+  row_field_counts:
+    "15": 10
+    "16": 6
+    "17": 4
+  structural_rule:
+    expected_field_count: 15
+    malformed_row_action: reject_before_column_mapping
+    preserve_raw_row: true
+domains:
+  - domain_id: RAW_TEXT_200
+    description: 원본 의미를 보존하기 위한 200자 이내 문자열
+    logical_type: raw_text
+    python_type: str
+    database_type: VARCHAR
+    length: 200
+    nullable: true
+    format: '^.{0,200}$'
+    allowed_values: []
+    examples:
+      - ' 전략플랫폼 49 '
+      - 'BIZ 17549'
+  - domain_id: IDENTIFIER_20
+    description: 표준화가 완료되고 충돌 검사를 통과한 20자 이내 식별자
+    logical_type: identifier
+    python_type: str
+    database_type: VARCHAR
+    length: 20
+    nullable: false
+    format: '^[A-Z][A-Z0-9_]{0,19}$'
+    allowed_values: []
+    examples:
+      - BIZ_31536
+      - EMP001103
+  - domain_id: NAME_100
+    description: 앞뒤 공백을 정리한 1자 이상 100자 이하 이름
+    logical_type: name
+    python_type: str
+    database_type: VARCHAR
+    length: 100
+    nullable: false
+    format: '^.{1,100}$'
+    allowed_values: []
+    examples:
+      - 인사
+      - 김수아
+  - domain_id: LEVEL_CODE_20
+    description: 조직 계층 단계를 표현하기 위한 20자 이내 후보 코드
+    logical_type: code
+    python_type: str
+    database_type: VARCHAR
+    length: 20
+    nullable: true
+    format: '^[A-Z0-9_]{1,20}$'
+    allowed_values: []
+    examples:
+      - TOP_LEVEL
+      - L1
+  - domain_id: STATUS_CODE_20
+    description: 업무 확인 후 확정할 직원 상태 후보 코드
+    logical_type: code
+    python_type: str
+    database_type: VARCHAR
+    length: 20
+    nullable: true
+    format: '^[A-Z0-9_]{1,20}$'
+    allowed_values: []
+    examples:
+      - ACTIVE
+      - RETIRED
+  - domain_id: DATETIME_ISO_SECOND
+    description: 초 단위까지 표현한 표준 ISO 8601 날짜와 시각
+    logical_type: datetime
+    python_type: datetime
+    database_type: DATETIME
+    nullable: true
+    format: '%Y-%m-%dT%H:%M:%S'
+    allowed_values: []
+    examples:
+      - '2021-12-01T05:30:46'
+  - domain_id: DATETIME_ISO
+    description: 초 단위까지 표현한 표준 ISO 8601 날짜와 시각
+    logical_type: datetime
+    python_type: datetime
+    database_type: DATETIME
+    nullable: false
+    format: '%Y-%m-%dT%H:%M:%S'
+    allowed_values: []
+    examples:
+      - '2021-12-01T05:30:46'

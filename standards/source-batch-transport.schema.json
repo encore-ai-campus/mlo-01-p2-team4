@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/hr-silver/v1/source-batch-transport.schema.json",
+  "title": "HR Silver SourceBatch transport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["context", "records"],
+  "properties": {
+    "context": {"$ref": "#/$defs/context"},
+    "records": {
+      "type": "array",
+      "items": {"$ref": "source-record.schema.json"}
+    }
+  },
+  "$defs": {
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pipeline_run_id", "batch_id", "batch_sequence", "dataset_id",
+        "snapshot_id", "contract_id", "contract_version", "ruleset_version",
+        "cursor_in", "cursor_out_candidate", "requested_batch_size", "actual_input_count"
+      ],
+      "properties": {
+        "pipeline_run_id": {"type": "string", "minLength": 1},
+        "batch_id": {"type": "string", "minLength": 1},
+        "batch_sequence": {"type": "integer", "minimum": 1},
+        "dataset_id": {"type": "string", "minLength": 1},
+        "snapshot_id": {"type": "string", "minLength": 1},
+        "contract_id": {"type": "string", "minLength": 1},
+        "contract_version": {"type": "string", "minLength": 1},
+        "ruleset_version": {"type": "string", "minLength": 1},
+        "cursor_in": {"type": ["string", "null"]},
+        "cursor_out_candidate": {"type": ["string", "null"]},
+        "requested_batch_size": {"type": "integer", "minimum": 1},
+        "actual_input_count": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

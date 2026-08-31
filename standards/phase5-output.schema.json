@@ -1,0 +1,581 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Phase5Output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "context",
+    "employees",
+    "areas",
+    "parent_areas",
+    "join_references",
+    "rejected",
+    "source_metrics",
+    "model_counts"
+  ],
+  "properties": {
+    "context": {
+      "$ref": "#/$defs/batchContext"
+    },
+    "employees": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/employeeRecord"
+      }
+    },
+    "areas": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/areaRecord"
+      }
+    },
+    "parent_areas": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/parentAreaRecord"
+      }
+    },
+    "join_references": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/joinReferenceRecord"
+      }
+    },
+    "rejected": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rejectedRecord"
+      }
+    },
+    "source_metrics": {
+      "$ref": "#/$defs/sourceMetrics"
+    },
+    "model_counts": {
+      "$ref": "#/$defs/modelCounts"
+    }
+  },
+  "$defs": {
+    "identifier20": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20,
+      "pattern": "^[A-Z][A-Z0-9_]{0,19}$"
+    },
+    "name100": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "levelCode20": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20,
+      "pattern": "^[A-Z0-9_]{1,20}$"
+    },
+    "statusCode20": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20,
+      "pattern": "^[A-Z0-9_]{1,20}$"
+    },
+    "datetimeIsoSecond": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$"
+    },
+    "batchContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pipeline_run_id",
+        "batch_id",
+        "batch_sequence",
+        "dataset_id",
+        "snapshot_id",
+        "contract_id",
+        "contract_version",
+        "ruleset_version",
+        "cursor_in",
+        "cursor_out_candidate",
+        "requested_batch_size",
+        "actual_input_count"
+      ],
+      "properties": {
+        "pipeline_run_id": {
+          "type": "string"
+        },
+        "batch_id": {
+          "type": "string"
+        },
+        "batch_sequence": {
+          "type": "integer"
+        },
+        "dataset_id": {
+          "type": "string"
+        },
+        "snapshot_id": {
+          "type": "string"
+        },
+        "contract_id": {
+          "type": "string"
+        },
+        "contract_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ruleset_version": {
+          "type": "string"
+        },
+        "cursor_in": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cursor_out_candidate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "requested_batch_size": {
+          "type": "integer"
+        },
+        "actual_input_count": {
+          "type": "integer"
+        }
+      }
+    },
+    "modelMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_key",
+        "model_fingerprint",
+        "source_record_ids"
+      ],
+      "properties": {
+        "model_key": {
+          "$ref": "#/$defs/identifier20"
+        },
+        "model_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "source_record_ids": {
+          "type": "array",
+          "description": "중복 없는 integer ID의 오름차순 배열",
+          "minItems": 1,
+          "items": {
+            "type": "integer"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "joinReferenceKey": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "area_id",
+        "employee_id"
+      ],
+      "properties": {
+        "area_id": {
+          "$ref": "#/$defs/identifier20"
+        },
+        "employee_id": {
+          "$ref": "#/$defs/identifier20"
+        }
+      }
+    },
+    "joinReferenceMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_key",
+        "model_fingerprint",
+        "source_record_ids"
+      ],
+      "properties": {
+        "model_key": {
+          "$ref": "#/$defs/joinReferenceKey"
+        },
+        "model_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "source_record_ids": {
+          "type": "array",
+          "description": "중복 없는 integer ID의 오름차순 배열",
+          "minItems": 1,
+          "items": {
+            "type": "integer"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "employeeData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "employee_id",
+        "employee_name",
+        "employee_department_name",
+        "employee_position_name",
+        "employee_hire_datetime",
+        "employee_status_code"
+      ],
+      "properties": {
+        "employee_id": {
+          "$ref": "#/$defs/identifier20"
+        },
+        "employee_name": {
+          "$ref": "#/$defs/name100"
+        },
+        "employee_department_name": {
+          "$ref": "#/$defs/name100"
+        },
+        "employee_position_name": {
+          "$ref": "#/$defs/name100"
+        },
+        "employee_hire_datetime": {
+          "$ref": "#/$defs/datetimeIsoSecond"
+        },
+        "employee_status_code": {
+          "$ref": "#/$defs/statusCode20"
+        }
+      }
+    },
+    "areaData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "area_id",
+        "area_name",
+        "parent_area_id",
+        "employee_id",
+        "area_registration_date"
+      ],
+      "properties": {
+        "area_id": {
+          "$ref": "#/$defs/identifier20"
+        },
+        "area_name": {
+          "$ref": "#/$defs/name100"
+        },
+        "parent_area_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier20"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "employee_id": {
+          "$ref": "#/$defs/identifier20"
+        },
+        "area_registration_date": {
+          "$ref": "#/$defs/datetimeIsoSecond"
+        }
+      }
+    },
+    "parentAreaData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "top_area_id",
+        "top_area_name",
+        "top_area_level_code",
+        "top_area_registration_date"
+      ],
+      "properties": {
+        "top_area_id": {
+          "$ref": "#/$defs/identifier20"
+        },
+        "top_area_name": {
+          "$ref": "#/$defs/name100"
+        },
+        "top_area_level_code": {
+          "$ref": "#/$defs/levelCode20"
+        },
+        "top_area_registration_date": {
+          "$ref": "#/$defs/datetimeIsoSecond"
+        }
+      }
+    },
+    "joinReferenceData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "area_id",
+        "parent_area_id",
+        "parent_area_name",
+        "employee_id",
+        "employee_name",
+        "employee_department_name",
+        "employee_position_name",
+        "employee_hire_datetime",
+        "employee_status_code"
+      ],
+      "properties": {
+        "area_id": {
+          "$ref": "#/$defs/identifier20"
+        },
+        "parent_area_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier20"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parent_area_name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/name100"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "employee_id": {
+          "$ref": "#/$defs/identifier20"
+        },
+        "employee_name": {
+          "$ref": "#/$defs/name100"
+        },
+        "employee_department_name": {
+          "$ref": "#/$defs/name100"
+        },
+        "employee_position_name": {
+          "$ref": "#/$defs/name100"
+        },
+        "employee_hire_datetime": {
+          "$ref": "#/$defs/datetimeIsoSecond"
+        },
+        "employee_status_code": {
+          "$ref": "#/$defs/statusCode20"
+        }
+      }
+    },
+    "employeeRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data",
+        "metadata"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/employeeData"
+        },
+        "metadata": {
+          "$ref": "#/$defs/modelMetadata"
+        }
+      }
+    },
+    "areaRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data",
+        "metadata"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/areaData"
+        },
+        "metadata": {
+          "$ref": "#/$defs/modelMetadata"
+        }
+      }
+    },
+    "parentAreaRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data",
+        "metadata"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/parentAreaData"
+        },
+        "metadata": {
+          "$ref": "#/$defs/modelMetadata"
+        }
+      }
+    },
+    "joinReferenceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data",
+        "metadata"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/joinReferenceData"
+        },
+        "metadata": {
+          "$ref": "#/$defs/joinReferenceMetadata"
+        }
+      }
+    },
+    "observedLineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "batch_record_index",
+        "record_id",
+        "source_row_no",
+        "source_record_sha256",
+        "release_slot",
+        "scheduled_release_at"
+      ],
+      "properties": {
+        "batch_record_index": {
+          "type": "integer"
+        },
+        "record_id": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "source_row_no": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "source_record_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "release_slot": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "scheduled_release_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "violation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "rule_id",
+        "field",
+        "detail"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "field": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "detail": {
+          "type": "string"
+        }
+      }
+    },
+    "rejectedRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observed_lineage",
+        "raw_json",
+        "violations"
+      ],
+      "properties": {
+        "observed_lineage": {
+          "$ref": "#/$defs/observedLineage"
+        },
+        "raw_json": {
+          "type": "string"
+        },
+        "violations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/violation"
+          }
+        }
+      }
+    },
+    "sourceMetrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_count",
+        "accepted_count",
+        "rejected_count",
+        "excluded_count"
+      ],
+      "properties": {
+        "input_count": {
+          "type": "integer"
+        },
+        "accepted_count": {
+          "type": "integer"
+        },
+        "rejected_count": {
+          "type": "integer"
+        },
+        "excluded_count": {
+          "type": "integer"
+        }
+      }
+    },
+    "modelCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "employee",
+        "area",
+        "parent_area",
+        "join_reference"
+      ],
+      "properties": {
+        "employee": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "area": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "parent_area": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "join_reference": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

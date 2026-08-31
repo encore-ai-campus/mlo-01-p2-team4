@@ -1,0 +1,78 @@
+schema_version: 1
+rules_id: phase5-silver-modeling
+rules_version: "1.0.0"
+status: active
+contract:
+  input_type: Phase5ProjectionResult
+  output_type: Phase5Output
+  standards_directory_version: v1
+  runtime_contract_version_source: context.contract_version
+  passthrough_identity_fields:
+    - context
+    - rejected
+    - source_metrics
+models:
+  employee:
+    model_name: employee
+    model_key: employee_id
+    data_fields:
+      - employee_id
+      - employee_name
+      - employee_department_name
+      - employee_position_name
+      - employee_hire_datetime
+      - employee_status_code
+  area:
+    model_name: area
+    model_key: division_id
+    data_fields:
+      - division_id
+      - division_name
+      - parent_division_id
+      - employee_id
+      - division_registered_datetime
+  parent_area:
+    model_name: parent_area
+    model_key: top_division_id
+    data_fields:
+      - top_division_id
+      - top_division_name
+      - division_level_code
+      - top_division_registered_datetime
+  join_reference:
+    model_name: join_reference
+    model_key: division_id
+    data_fields:
+      - division_id
+      - parent_division_id
+      - parent_division_name
+      - employee_id
+      - employee_name
+      - employee_department_name
+      - employee_position_name
+      - employee_hire_datetime
+      - employee_status_code
+assembly:
+  same_key_same_data: merge
+  same_key_different_data: fail_closed
+  conflict_exception: Phase4ContractViolation
+  collection_order: model_key_ascending
+  source_record_ids:
+    data_type: integer
+    unique: true
+    order: ascending
+  model_counts_source: deduplicated_collections
+fingerprint:
+  algorithm: sha256
+  encoding: utf-8
+  serialization: canonical_json
+  ensure_ascii: false
+  separators:
+    - ","
+    - ":"
+  sort_keys: true
+  payload_fields:
+    - model_name
+    - data
+    - contract_version
+  contract_version_source: context.contract_version

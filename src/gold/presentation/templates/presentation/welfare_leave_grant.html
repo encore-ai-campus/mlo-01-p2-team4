@@ -1,0 +1,224 @@
+{% extends "presentation/base.html" %}
+{% load static %}
+
+{% block content %}
+    {% if mount_status.is_demo and mount_status.connected %}
+        <div class="system-banner banner-success" role="status">
+            <strong>데모 모드</strong>
+            <span>로컬 SQLite의 샘플 사원 {{ demo_employee_count }}명을 사용합니다. 이 화면의 저장 결과는 실제 MySQL에 반영되지 않습니다.</span>
+        </div>
+    {% elif mount_status.is_demo %}
+        <div class="system-banner banner-error" role="alert">
+            <strong>데모 준비 필요</strong><span>{{ mount_status.message }}</span>
+        </div>
+    {% elif not mount_status.mounted %}
+        <div class="system-banner banner-unmounted" role="status">
+            <strong>MySQL 미마운트</strong>
+            <span>현재는 화면 구조만 확인할 수 있습니다. 실제 접속정보 입력 후 <code>MYSQL_MOUNTED=true</code>로 전환하세요.</span>
+        </div>
+    {% elif not mount_status.connected %}
+        <div class="system-banner banner-error" role="alert">
+            <strong>MySQL 연결 실패</strong><span>{{ mount_status.message }}</span>
+        </div>
+    {% endif %}
+    {% if error_message %}
+        <div class="system-banner banner-error" role="alert">{{ error_message }}</div>
+    {% endif %}
+
+    <div class="step-layout">
+        <div class="step-rail" aria-hidden="true">
+            <span class="step-dot step-blue">1</span>
+            <span class="rail-line"></span>
+            <span class="step-dot step-teal">2</span>
+            <span class="rail-line"></span>
+            <span class="step-dot step-blue">3</span>
+        </div>
+
+        <div class="step-content">
+            <section class="panel condition-panel">
+                <h1>1. 대상자 조건 설정</h1>
+                <form method="get" class="condition-form">
+                    <input type="hidden" name="query" value="1">
+                    <fieldset {% if not can_query %}disabled{% endif %}>
+                        <div class="condition-grid">
+                            <div class="field-group department-field">
+                                <label for="{{ condition_form.department_code.id_for_label }}">{{ condition_form.department_code.label }}</label>
+                                {{ condition_form.department_code }}
+                            </div>
+                            <div class="field-group team-field">
+                                <label for="{{ condition_form.team_code.id_for_label }}">{{ condition_form.team_code.label }}</label>
+                                {{ condition_form.team_code }}
+                            </div>
+                            <div class="field-group position-field">
+                                <label for="{{ condition_form.position_code.id_for_label }}">{{ condition_form.position_code.label }}</label>
+                                {{ condition_form.position_code }}
+                            </div>
+                            <div class="field-group tenure-field">
+                                <label for="{{ condition_form.tenure_condition.id_for_label }}">{{ condition_form.tenure_condition.label }}</label>
+                                {{ condition_form.tenure_condition }}
+                            </div>
+                            <div class="field-group policy-field">
+                                <label for="{{ condition_form.policy_code.id_for_label }}">{{ condition_form.policy_code.label }}</label>
+                                {{ condition_form.policy_code }}
+                            </div>
+                            <div class="condition-help">
+                                <span class="info-icon">i</span>
+                                입사일부터 오늘까지의 근속 연차를 계산해 선택한 1년 구간만 조회합니다.
+                            </div>
+                            <button type="submit" class="button button-primary query-button">대상자 조회</button>
+                        </div>
+                    </fieldset>
+                    {% if condition_form.non_field_errors %}
+                        <div class="form-error">{{ condition_form.non_field_errors|join:", " }}</div>
+                    {% endif %}
+                    {% if query_notice %}
+                        <div class="form-notice"><span class="info-icon">i</span>{{ query_notice }}</div>
+                    {% endif %}
+                </form>
+            </section>
+
+            <section class="panel result-panel">
+                <div class="panel-heading-row">
+                    <h2>2. 대상자 조회 결과</h2>
+                    <form method="get" class="result-search-form">
+                        {% for name, value in preserved_condition_fields %}
+                            <input type="hidden" name="{{ name }}" value="{{ value }}">
+                        {% endfor %}
+                        <input type="hidden" name="query" value="1">
+                        <label for="{{ result_search_form.keyword.id_for_label }}">결과 내 검색</label>
+                        {{ result_search_form.keyword }}
+                        <button type="submit" class="button button-primary button-small" {% if not search_result %}disabled{% endif %}>검색</button>
+                    </form>
+                </div>
+
+                <div class="target-summary">
+                    <div class="people-icon" aria-hidden="true">●●</div>
+                    <div>
+                        <span>조건에 해당하는 직원</span>
+                        <strong>{% if search_result %}{{ search_result.total_count }}명{% else %}-{% endif %}</strong>
+                        <small>재직 상태이며 모든 조건을 충족한 대상</small>
+                    </div>
+                    <div
+                        class="select-all-summary"
+                        {% if search_result %}data-selection-scope-count="{{ search_result.display_count }}"{% endif %}
+                    >
+                        <span>{% if search_result %}선택된 직원 <strong id="selected-target-count">0명</strong>{% else %}대상자 조회 후 선택{% endif %}</span>
+                        {% if search_result %}
+                            <label class="select-all-control" for="select-all-targets">
+                                <input
+                                    type="checkbox"
+                                    id="select-all-targets"
+                                    {% if search_result.display_count < 1 %}disabled{% endif %}
+                                >
+                                전체 선택
+                            </label>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <p class="result-notice"><span class="info-icon">i</span> 전체 선택은 현재 검색 결과 전체에 적용됩니다. 개별 행을 해제하면 해당 직원만 대상에서 제외됩니다.</p>
+
+                <div class="table-wrap">
+                    <table class="data-table employee-table">
+                        <thead>
+                            <tr>
+                                <th>선택</th>
+                                <th>직원아이디</th>
+                                <th>직원이름</th>
+                                <th>부서명</th>
+                                <th>업무팀</th>
+                                <th>직급</th>
+                                <th>입사일</th>
+                                <th>근속기간</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if search_result and search_result.page.object_list %}
+                                {% for employee in search_result.page.object_list %}
+                                    <tr>
+                                        <td>
+                                            <input
+                                                type="checkbox"
+                                                class="target-selector"
+                                                value="{{ employee.employee_no }}"
+                                                aria-label="{{ employee.employee_no }} 선택"
+                                            >
+                                        </td>
+                                        <td>{{ employee.employee_no }}</td>
+                                        <td>{{ employee.employee_name }}</td>
+                                        <td>{{ employee.department_name }}</td>
+                                        <td>{{ employee.team_name }}</td>
+                                        <td>{{ employee.position_name }}</td>
+                                        <td>{{ employee.hire_date|date:"Y-m-d" }}</td>
+                                        <td>{{ employee.tenure_label }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr class="empty-row">
+                                    <td colspan="8">{% if search_result %}결과 내 검색과 일치하는 직원이 없습니다.{% else %}대상자 조건을 설정하고 조회해 주세요.{% endif %}</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if search_result and search_result.page.paginator.num_pages > 1 %}
+                    <nav class="pagination" aria-label="대상자 페이지">
+                        {% if search_result.page.has_previous %}
+                            <a href="?{{ pagination_query }}&page={{ search_result.page.previous_page_number }}">‹</a>
+                        {% endif %}
+                        <span class="current-page">{{ search_result.page.number }}</span>
+                        <span>/</span>
+                        <span>{{ search_result.page.paginator.num_pages }}</span>
+                        {% if search_result.page.has_next %}
+                            <a href="?{{ pagination_query }}&page={{ search_result.page.next_page_number }}">›</a>
+                        {% endif %}
+                    </nav>
+                {% endif %}
+            </section>
+
+            <section class="panel grant-panel">
+                <h2>3. 복지연차 일괄 부여</h2>
+                <form method="post" class="grant-form" id="grant-form">
+                    {% csrf_token %}
+                    {{ grant_form.selection_token }}
+                    {{ grant_form.selection_mode }}
+                    <div id="selection-payload" hidden></div>
+                    <div class="grant-summary-grid">
+                        <div><span>부여 대상</span><strong id="grant-target-count">{% if search_result %}0명{% else %}-{% endif %}</strong></div>
+                        <div><span>부여 일수</span><strong>{% if selected_policy %}{{ selected_policy.grant_days }}일{% else %}-{% endif %}</strong></div>
+                        <div><span>부여 사유</span><strong>{% if selected_policy %}{{ selected_policy.policy_name }}{% else %}-{% endif %}</strong></div>
+                        <div class="apply-date-field"><label for="{{ grant_form.apply_date.id_for_label }}">적용일</label>{{ grant_form.apply_date }}</div>
+                    </div>
+
+                    <div class="grant-action-row">
+                        <div class="grant-confirmation">
+                            <span class="confirmation-icon">✓</span>
+                            <div>
+                                {% if search_result and selected_policy %}
+                                    <strong><span id="confirmation-target-count">0명</span>에게 {{ selected_policy.policy_name }} {{ selected_policy.grant_days }}일을 부여합니다.</strong>
+                                {% else %}
+                                    <strong>대상자와 실제 복지연차 정책을 조회하면 최종 부여 내용이 표시됩니다.</strong>
+                                {% endif %}
+                                <label class="confirm-check">{{ grant_form.confirm_all }} {{ grant_form.confirm_all.label }}</label>
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            class="button button-primary grant-button"
+                            data-server-ready="{{ can_grant|yesno:'true,false' }}"
+                            disabled
+                        >선택 대상자에게 일괄 부여</button>
+                    </div>
+                    {% if not operator_ready and mount_status.connected %}
+                        <div class="form-error">저장 전 <code>WELFARE_OPERATOR_ID</code>를 설정하세요.</div>
+                    {% endif %}
+                </form>
+            </section>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static 'presentation/js/welfare_leave_selection.js' %}" defer></script>
+{% endblock %}

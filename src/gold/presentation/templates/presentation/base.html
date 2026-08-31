@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}조건 기반 복지연차 일괄 부여{% endblock %}</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="{% static 'presentation/css/leave_management.css' %}">
+</head>
+<body>
+    <header class="top-header">
+        <a class="brand" href="{% url 'presentation:welfare-leave-grant' %}">조건 기반 복지연차 일괄 부여</a>
+        <div class="header-actions" aria-label="사용자 메뉴">
+            <span class="header-icon" title="도움말">?</span>
+            <span class="header-icon" title="알림">♧</span>
+            <span class="user-avatar" aria-hidden="true">●</span>
+            <span class="operator-name">{{ request.user.username|default:"관리자" }}님</span>
+            <span aria-hidden="true">⌄</span>
+        </div>
+    </header>
+
+    <aside class="sidebar">
+        <nav aria-label="주 메뉴">
+            <span class="nav-item nav-disabled"><span class="nav-icon">⌂</span>대시보드</span>
+            <span class="nav-item nav-disabled"><span class="nav-icon">♙</span>직원 조회</span>
+            <a class="nav-item{% if active_menu == 'grant' %} is-active{% endif %}" href="{% url 'presentation:welfare-leave-grant' %}">
+                <span class="nav-icon">♢</span>복지연차 부여
+            </a>
+            <a class="nav-item{% if active_menu == 'history' %} is-active{% endif %}" href="{% url 'presentation:grant-history' %}">
+                <span class="nav-icon">▣</span>부여 내역
+            </a>
+        </nav>
+        <div class="sidebar-collapse" aria-hidden="true">≪</div>
+    </aside>
+
+    <main class="workspace">
+        {% block content %}{% endblock %}
+    </main>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
