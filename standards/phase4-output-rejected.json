@@ -1,0 +1,44 @@
+{
+  "context": {
+    "pipeline_run_id": "run-20260827-0002",
+    "batch_id": "batch-000002",
+    "batch_sequence": 2,
+    "dataset_id": "hr-organization",
+    "snapshot_id": "snapshot-20260827",
+    "contract_id": "hr-silver",
+    "contract_version": "1",
+    "ruleset_version": "1",
+    "cursor_in": "cursor-000002",
+    "cursor_out_candidate": "cursor-000003",
+    "requested_batch_size": 1000,
+    "actual_input_count": 1
+  },
+  "accepted": [],
+  "rejected": [
+    {
+      "observed_lineage": {
+        "batch_record_index": 1,
+        "record_id": 153755,
+        "source_row_no": 5,
+        "source_record_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "release_slot": 0,
+        "scheduled_release_at": "2026-08-27T09:00:00+09:00"
+      },
+      "raw_json": "{\"record_id\":153755,\"payload\":{\"area_no\":\"BIZ_00077\"}}",
+      "violations": [
+        {
+          "code": "AREA_NAME_UNMAPPED",
+          "rule_id": "SDEC-004",
+          "field": "area_nm",
+          "detail": "20개 기준 영역으로 매핑할 수 없습니다."
+        }
+      ]
+    }
+  ],
+  "metrics": {
+    "input_count": 1,
+    "accepted_count": 0,
+    "rejected_count": 1,
+    "excluded_count": 0
+  }
+}

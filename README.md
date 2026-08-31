@@ -95,11 +95,11 @@
 |  |  |
 |  |  |
 | `김남동` |  |
-|  |  |
-|  |  |
+|  | PRD, DRD 작성 |
+| SILVER | 데이터 역공학 ･ 정규화 ･ 통합 파트 구현, MySQL 적재 |
 | `이형인` |  |
-|  |  |
-|  |  |
+|  | BRD 작성, 서비스 기획 |
+| SILVER | 표준화 |
 
 ## 7. ERD
 
@@ -131,3 +131,82 @@ Bronze–Silver–Gold 레이어의 엔터티, 키, 관계 및 무결성 규칙�
 ### 11. PPT 링크
 
 PPT 링크 : 추후 첨부 예정
+
+## 12. 현재 Atlas/Silver/MySQL 통합 파이프라인
+
+- `src/bronze/`: Atlas 원본 보존과 `_id` 오름차순 증분 전달
+- `src/silver/`: 최소 전처리와 Flat 표준화 후 누적 결과를 네 모델 snapshot으로 정규화
+  - Flat 출력: `<temp-dir>/accept.csv`, `<temp-dir>/reject.csv`
+  - 정규화 Reject: `<temp-dir>/normalization_reject.csv`
+  - 정규화 모델: `<temp-dir>/models/silver_employee.csv`,
+    `<temp-dir>/models/silver_area.csv`, `<temp-dir>/models/silver_parent_area.csv`,
+    `<temp-dir>/models/silver_area_join_reference.csv`
+  - 모든 Flat·정규화 출력 게시와 source accounting이 성공한 뒤에만
+    `<temp-dir>/processed_ids.json` checkpoint 갱신
+- `src/main.py`: Atlas→Silver가 성공하면 네 모델 CSV를 MySQL 적재기에 전달
+- 실행 규칙:
+  - `data-contracts/standard-term.csv`
+  - `standards/area-name-normalization.csv`
+  - `standards/code-normalization.yaml`
+
+현행 표준 산출물은 모두 `standards/` 바로 아래에 두며, 통합 전 Silver v1 snapshot은
+`archive/standards/silver-v1-before-v2-integration/`에 실행 표준과 분리해 보존합니다.
+
+기본 실행은 Atlas→Silver 처리와 checkpoint 기록 후 MySQL CSV 계약만 검증하는
+dry-run cycle을 즉시 한 번 실행하고, 각 cycle 시작 시각을 기준으로 `src/.env`의
+`PIPELINE_INTERVAL_SECONDS` 주기마다 반복합니다. 이 값이 없으면 30초를 사용하며,
+`python src/main.py`와 `python -m src.main`은 동등합니다.
+
+```dotenv
+# src/.env: 양의 정수(초)
+PIPELINE_INTERVAL_SECONDS=30
+```
+
+```bash
+# 기본: 즉시 시작한 뒤 src/.env의 주기마다 Atlas→Silver→MySQL CSV dry-run 반복
+python src/main.py
+
+# module 실행도 동일
+python -m src.main
+
+# 단발 dry-run
+python src/main.py --once
+
+# 최초 단발 실제 적재: 없는 테이블 생성·검증 후 전체 snapshot 교체
+python src/main.py --once --init-schema --apply
+
+# 고정 스키마가 이미 존재할 때 단발 실제 적재
+python src/main.py --once --apply
+```
+
+통합 실행 로그는 실행 위치나 `--temp-dir`와 관계없이 저장소 루트의
+`output/logs/pipeline.log`에 UTF-8로 누적됩니다. `INFO`는 터미널 표준 출력에,
+`WARNING`·`ERROR`는 표준 오류에 표시되며 모든 level이 같은 로그 파일에도
+기록됩니다. 파일은 10 MiB 단위로 회전하고 최대 5개 백업을 유지하며,
+`output/logs/`는 실행 시 자동 생성되고 Git 추적에서는 제외됩니다.
+
+```bash
+tail -f output/logs/pipeline.log
+```
+
+이 통합 로그는 독립 Bronze 수집 명령의 `src/bronze/logs/crawler.log`와 별도입니다.
+
+`--batch-size`는 Atlas 조회 batch 크기(기본 1,000), `--temp-dir`는 Silver 출력·
+checkpoint·모델 디렉터리(기본 `temp`), `--chunk-size`는 MySQL insert chunk 크기
+(기본 1,000)입니다. `--once`는 cycle을 한 번만 실행합니다. 반복 주기의 우선순위는
+`--interval-seconds` 명시값, 프로세스 환경변수, `src/.env`의
+`PIPELINE_INTERVAL_SECONDS`, 30초 순입니다.
+
+반복 실행은 cycle을 중첩하지 않습니다. cycle이 설정 주기보다 오래 걸리면 완료 직후 다음
+cycle을 시작합니다. 예외가 발생하거나 하위 단계가 nonzero를 반환하면 loop를
+중단하며, `Ctrl-C`로도 종료할 수 있습니다. `--init-schema`는 첫 cycle에만 적용되지만
+`--apply`는 매 cycle마다 네 테이블을 full replacement하므로 반복 적재에는 명시적인
+주의가 필요합니다.
+
+Silver checkpoint는 MySQL 단계 전에 확정됩니다. MySQL 실패 후에는 같은
+`--temp-dir`로 재실행할 수 있고, 규칙 변경 등으로 전체 source를 다시 처리할 때는
+새 `--temp-dir`를 사용해야 합니다. 같은 `--temp-dir`에서 두 프로세스를 동시에
+실행하면 안 됩니다. 빈 모델 snapshot에 `--apply`를 사용하면 대상 테이블도 비게
+됩니다.
+
+세부 계약은 `src/bronze/README.md`와 `src/silver/README.md`를 참고합니다.

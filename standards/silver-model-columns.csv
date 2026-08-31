@@ -1,0 +1,25 @@
+model_name,column_order,column_name,data_type,nullable,key_role,description
+employee,1,employee_id,string,false,model_key,직원 식별자
+employee,2,employee_name,string,false,attribute,직원 이름
+employee,3,employee_department_name,string,false,attribute,직원 부서명
+employee,4,employee_position_name,string,false,attribute,직원 직위명
+employee,5,employee_hire_datetime,string,false,attribute,직원 입사 일시
+employee,6,employee_status_code,string,false,attribute,직원 활성 여부 코드
+area,1,area_id,string,false,model_key,영역 식별자
+area,2,area_name,string,false,attribute,영역 이름
+area,3,parent_area_id,string,true,attribute,직접 부모 영역 식별자
+area,4,employee_id,string,false,attribute,관리 직원 식별자
+area,5,area_registration_date,string,false,attribute,영역 등록 일시
+parent_area,1,top_area_id,string,false,model_key,최상위 영역 식별자
+parent_area,2,top_area_name,string,false,attribute,최상위 영역 이름
+parent_area,3,top_area_level_code,string,false,attribute,최상위 영역 단계 코드
+parent_area,4,top_area_registration_date,string,false,attribute,최상위 영역 등록 일시
+join_reference,1,area_id,string,false,model_key,조인 참조 복합키 영역 식별자
+join_reference,2,parent_area_id,string,true,attribute,직접 부모 영역 식별자
+join_reference,3,parent_area_name,string,true,attribute,직접 부모 영역 이름
+join_reference,4,employee_id,string,false,model_key,조인 참조 복합키 직원 식별자
+join_reference,5,employee_name,string,false,attribute,관리 직원 이름
+join_reference,6,employee_department_name,string,false,attribute,관리 직원 부서명
+join_reference,7,employee_position_name,string,false,attribute,관리 직원 직위명
+join_reference,8,employee_hire_datetime,string,false,attribute,관리 직원 입사 일시
+join_reference,9,employee_status_code,string,false,attribute,관리 직원 활성 여부 코드

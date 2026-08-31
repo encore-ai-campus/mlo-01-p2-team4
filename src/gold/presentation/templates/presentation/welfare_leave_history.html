@@ -1,0 +1,95 @@
+{% extends "presentation/base.html" %}
+
+{% block title %}복지연차 부여 내역{% endblock %}
+
+{% block content %}
+    {% if completed_batch_id %}
+        <div class="system-banner banner-success" role="status">
+            일괄 부여가 완료되었습니다. 배치 ID: <strong>{{ completed_batch_id }}</strong>
+        </div>
+    {% endif %}
+    {% if mount_status.is_demo and mount_status.connected %}
+        <div class="system-banner banner-success">데모 모드의 로컬 부여 내역입니다. 실제 MySQL 데이터가 아닙니다.</div>
+    {% elif mount_status.is_demo %}
+        <div class="system-banner banner-error">{{ mount_status.message }}</div>
+    {% elif not mount_status.mounted %}
+        <div class="system-banner banner-unmounted">MySQL 마운트 후 실제 부여 내역을 확인할 수 있습니다.</div>
+    {% elif not mount_status.connected %}
+        <div class="system-banner banner-error">{{ mount_status.message }}</div>
+    {% endif %}
+    {% if error_message %}<div class="system-banner banner-error">{{ error_message }}</div>{% endif %}
+
+    <section class="panel history-panel">
+        <div class="panel-heading-row">
+            <div>
+                <h1>복지연차 부여 내역</h1>
+                <p>일괄 부여 조건, 대상 인원, 부여 일수와 처리일을 확인합니다.</p>
+            </div>
+            <a class="button button-primary" href="{% url 'presentation:welfare-leave-grant' %}">새 일괄 부여</a>
+        </div>
+
+        <div class="table-wrap">
+            <table class="data-table history-table">
+                <thead>
+                    <tr>
+                        <th>배치 ID</th>
+                        <th>복지연차</th>
+                        <th>대상 인원</th>
+                        <th>부여 일수</th>
+                        <th>적용일</th>
+                        <th>처리일시</th>
+                        <th>처리자</th>
+                        <th>상태</th>
+                        <th>조건</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for batch in history_page.object_list %}
+                        <tr>
+                            <td>{{ batch.batch_id }}</td>
+                            <td>{{ batch.policy_name }}</td>
+                            <td>
+                                <details class="history-details target-details">
+                                    <summary>{{ batch.target_count }}명</summary>
+                                    <div class="target-id-list" aria-label="대상 사원 ID 목록">
+                                        {% for employee_no in batch.employee_numbers %}
+                                            <code>{{ employee_no }}</code>
+                                        {% empty %}
+                                            <span class="detail-empty">저장된 대상 사원 ID가 없습니다.</span>
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            </td>
+                            <td>{{ batch.grant_days }}일</td>
+                            <td>{{ batch.apply_date|date:"Y-m-d" }}</td>
+                            <td>{{ batch.processed_at|date:"Y-m-d H:i:s" }}</td>
+                            <td>{{ batch.processed_by }}</td>
+                            <td><span class="status-chip">{{ batch.status }}</span></td>
+                            <td>
+                                <details class="history-details condition-details">
+                                    <summary>보기</summary>
+                                    <ul class="condition-list">
+                                        {% for condition_line in batch.condition_lines %}
+                                            <li>{{ condition_line }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </details>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr class="empty-row"><td colspan="9">표시할 부여 내역이 없습니다.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if history_page.paginator.num_pages > 1 %}
+            <nav class="pagination" aria-label="부여 내역 페이지">
+                {% if history_page.has_previous %}<a href="?page={{ history_page.previous_page_number }}">‹</a>{% endif %}
+                <span class="current-page">{{ history_page.number }}</span>
+                <span>/ {{ history_page.paginator.num_pages }}</span>
+                {% if history_page.has_next %}<a href="?page={{ history_page.next_page_number }}">›</a>{% endif %}
+            </nav>
+        {% endif %}
+    </section>
+{% endblock %}
