@@ -104,7 +104,9 @@
 
 ## 7. ERD
 
-추후 업로드 예정
+<img width="2576" height="3127" alt="ERD_복지연차부여" src="https://github.com/user-attachments/assets/d5014321-65d1-4d9d-8049-86c1f29da889" />
+해당 ERD는 MVP 완성형을 기준이며 현재는 Silver 계층 데이터 표준화·정규화 및 직원–조직 통합 참조 데이터 구축
+
 
 ## 8. 주요 프로시저
 
